@@ -1,0 +1,2735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>GyaanPlant — Complete Mobile App</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════
+   DESIGN TOKENS
+═══════════════════════════════════════════════ */
+:root {
+  --green:#00c46e; --green-d:#009954; --green-dd:#006b3a;
+  --green-10:rgba(0,196,110,.10); --green-20:rgba(0,196,110,.20);
+  --amber:#f5a623; --amber-10:rgba(245,166,35,.10);
+  --blue:#4a9eff;  --blue-10:rgba(74,158,255,.10);
+  --red:#ff5e5e;   --red-10:rgba(255,94,94,.10);
+  --purple:#a78bfa;--purple-10:rgba(167,139,250,.10);
+  --pink:#f472b6;  --pink-10:rgba(244,114,182,.10);
+  --teal:#2dd4bf;  --teal-10:rgba(45,212,191,.10);
+
+  --bg:#080e0a; --bg2:#0d1510; --bg3:#111c14;
+  --surf:#182219; --surf2:#1f2d22; --surf3:#263527;
+  --bdr:rgba(0,196,110,.13); --bdr2:rgba(0,196,110,.22);
+  --bdrw:rgba(255,255,255,.07);
+
+  --t1:#eef4f0; --t2:#8fa898; --t3:#4d6656; --t4:#2e3d33;
+  --font-head:'Sora',sans-serif;
+  --font-body:'DM Sans',sans-serif;
+  --r8:8px;--r12:12px;--r16:16px;--r20:20px;--r24:24px;--r50:50px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:#050a06;font-family:var(--font-body);color:var(--t1);overflow:hidden}
+
+/* ═══════════════════════════════════════════════
+   APP SHELL
+═══════════════════════════════════════════════ */
+#app-shell {
+  width:100vw;height:100vh;
+  display:flex;align-items:center;justify-content:center;
+  position:relative;overflow:hidden;
+}
+.bg-orbs {
+  position:fixed;inset:0;pointer-events:none;z-index:0;
+}
+.orb {
+  position:absolute;border-radius:50%;
+  background:radial-gradient(circle,var(--green-10),transparent 70%);
+}
+
+/* ═══════════════════════════════════════════════
+   ROLE SELECTOR (ENTRY SCREEN)
+═══════════════════════════════════════════════ */
+#role-selector {
+  position:fixed;inset:0;z-index:100;
+  background:var(--bg);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:32px 24px;
+  gap:24px;
+}
+.entry-logo {
+  display:flex;align-items:center;gap:12px;margin-bottom:8px;
+}
+.leaf-mark {
+  width:44px;height:44px;
+  background:var(--green);
+  border-radius:50% 50% 50% 0;
+  transform:rotate(-45deg);
+  box-shadow:0 0 32px var(--green-20);
+  flex-shrink:0;
+}
+.brand-name {
+  font-family:var(--font-head);
+  font-size:26px;font-weight:800;
+  letter-spacing:-0.5px;
+}
+.brand-name em{color:var(--green);font-style:normal}
+.entry-title {
+  font-family:var(--font-head);
+  font-size:22px;font-weight:700;
+  text-align:center;line-height:1.3;
+  color:var(--t1);
+}
+.entry-sub {
+  font-size:14px;color:var(--t3);text-align:center;
+}
+.role-cards {
+  display:flex;flex-direction:column;gap:12px;width:100%;max-width:360px;
+}
+.role-card {
+  display:flex;align-items:center;gap:16px;
+  padding:18px 20px;
+  background:var(--surf);
+  border:1px solid var(--bdr);
+  border-radius:var(--r20);
+  cursor:pointer;
+  transition:all .2s;
+}
+.role-card:hover,.role-card:active {
+  border-color:var(--green);
+  background:var(--green-10);
+  transform:translateX(4px);
+}
+.role-card-icon {
+  width:48px;height:48px;
+  border-radius:14px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;flex-shrink:0;
+}
+.role-card-text{flex:1}
+.role-card-name {
+  font-family:var(--font-head);
+  font-size:15px;font-weight:700;color:var(--t1);
+}
+.role-card-desc {font-size:12px;color:var(--t3);margin-top:3px;}
+.role-card-arrow {font-size:18px;color:var(--t3);}
+
+/* ═══════════════════════════════════════════════
+   DEVICE FRAME
+═══════════════════════════════════════════════ */
+#device-container {
+  position:relative;z-index:10;
+  display:none;
+  flex-direction:column;
+  align-items:center;
+}
+.device-frame {
+  width:390px;
+  height:844px;
+  background:var(--bg);
+  border-radius:52px;
+  border:2.5px solid rgba(255,255,255,.12);
+  position:relative;
+  overflow:hidden;
+  box-shadow:
+    0 0 0 1px rgba(0,196,110,.06),
+    0 60px 120px rgba(0,0,0,.8),
+    inset 0 1px 0 rgba(255,255,255,.07);
+}
+.device-notch {
+  position:absolute;top:0;left:50%;transform:translateX(-50%);
+  width:130px;height:34px;
+  background:var(--bg);
+  border-radius:0 0 22px 22px;
+  border:2.5px solid rgba(255,255,255,.1);
+  border-top:none;z-index:200;
+}
+.app-viewport {
+  width:100%;height:100%;
+  border-radius:52px;
+  overflow:hidden;
+  position:relative;
+}
+
+/* ═══════════════════════════════════════════════
+   STATUS BAR
+═══════════════════════════════════════════════ */
+.status-bar {
+  display:flex;justify-content:space-between;align-items:center;
+  padding:14px 28px 6px;
+  font-size:12px;font-weight:600;color:var(--t2);
+  position:relative;z-index:50;flex-shrink:0;
+}
+.sb-right{display:flex;align-items:center;gap:5px;font-size:11px}
+
+/* ═══════════════════════════════════════════════
+   NAVIGATION BAR
+═══════════════════════════════════════════════ */
+.nav-bar {
+  position:absolute;bottom:0;left:0;right:0;height:80px;
+  background:rgba(8,14,10,.96);
+  backdrop-filter:blur(20px);
+  border-top:1px solid var(--bdr);
+  display:flex;align-items:center;justify-content:space-around;
+  padding:0 8px 14px;z-index:100;
+}
+.nav-item {
+  display:flex;flex-direction:column;align-items:center;gap:5px;
+  padding:8px 16px;cursor:pointer;min-width:60px;
+}
+.nav-icon {font-size:22px;opacity:.4;transition:.2s}
+.nav-label {font-size:9px;font-weight:600;color:var(--t3);letter-spacing:.4px}
+.nav-item.active .nav-icon{opacity:1}
+.nav-item.active .nav-label{color:var(--green)}
+.nav-dot {
+  width:4px;height:4px;border-radius:50%;
+  background:var(--green);margin-top:-4px;
+}
+
+/* ═══════════════════════════════════════════════
+   SCREEN SYSTEM
+═══════════════════════════════════════════════ */
+.screen {
+  position:absolute;inset:0;
+  overflow:hidden;
+  display:none;
+  flex-direction:column;
+  background:var(--bg);
+  transition:opacity .25s;
+}
+.screen.active{display:flex}
+.scroll-area {
+  flex:1;overflow-y:auto;overflow-x:hidden;
+  padding-bottom:88px;
+  scrollbar-width:none;
+}
+.scroll-area::-webkit-scrollbar{display:none}
+
+/* ═══════════════════════════════════════════════
+   COMMON COMPONENTS
+═══════════════════════════════════════════════ */
+.screen-header {
+  padding:14px 20px 16px;
+  flex-shrink:0;
+}
+.screen-title {
+  font-family:var(--font-head);
+  font-size:24px;font-weight:800;color:var(--t1);
+  letter-spacing:-.5px;
+}
+.screen-sub{font-size:13px;color:var(--t3);margin-top:3px}
+
+.section-head {
+  padding:0 20px;margin-bottom:12px;
+  display:flex;justify-content:space-between;align-items:center;
+}
+.sh-title {
+  font-family:var(--font-head);
+  font-size:14px;font-weight:700;color:var(--t1);
+}
+.sh-link{font-size:12px;color:var(--green);cursor:pointer}
+
+.card {
+  background:var(--surf);
+  border:1px solid var(--bdr);
+  border-radius:var(--r20);
+  padding:16px;
+}
+.card-sm {border-radius:var(--r16);padding:14px}
+
+.pill {
+  display:inline-flex;align-items:center;gap:5px;
+  padding:4px 12px;border-radius:var(--r50);
+  font-size:11px;font-weight:700;
+}
+.pill-green{background:var(--green-10);color:var(--green);border:1px solid var(--green-20)}
+.pill-amber{background:var(--amber-10);color:var(--amber);border:1px solid rgba(245,166,35,.25)}
+.pill-blue{background:var(--blue-10);color:var(--blue);border:1px solid rgba(74,158,255,.25)}
+.pill-red{background:var(--red-10);color:var(--red);border:1px solid rgba(255,94,94,.25)}
+.pill-purple{background:var(--purple-10);color:var(--purple);border:1px solid rgba(167,139,250,.25)}
+.pill-teal{background:var(--teal-10);color:var(--teal);border:1px solid rgba(45,212,191,.25)}
+
+.btn-primary {
+  background:var(--green);color:#000;
+  font-family:var(--font-head);font-size:15px;font-weight:700;
+  padding:16px;border-radius:var(--r16);
+  text-align:center;cursor:pointer;border:none;width:100%;
+  letter-spacing:.1px;transition:.15s;
+}
+.btn-primary:active{transform:scale(.98);opacity:.9}
+.btn-secondary {
+  background:transparent;color:var(--t1);
+  font-family:var(--font-head);font-size:14px;font-weight:600;
+  padding:14px;border-radius:var(--r16);
+  text-align:center;cursor:pointer;
+  border:1px solid var(--bdr);width:100%;
+}
+
+.avatar {
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-head);font-weight:700;
+  border-radius:50%;flex-shrink:0;
+}
+.av-green{background:linear-gradient(135deg,var(--green-d),var(--green));color:#000}
+.av-blue{background:linear-gradient(135deg,#1a5fa8,var(--blue));color:#fff}
+.av-purple{background:linear-gradient(135deg,#6d4acf,var(--purple));color:#fff}
+.av-amber{background:linear-gradient(135deg,#b87012,var(--amber));color:#000}
+.av-pink{background:linear-gradient(135deg,#b5336e,var(--pink));color:#fff}
+.av-teal{background:linear-gradient(135deg,#0f8e82,var(--teal));color:#000}
+
+.progress-track {
+  height:6px;background:var(--surf2);border-radius:3px;overflow:hidden;flex:1;
+}
+.progress-fill{height:100%;background:var(--green);border-radius:3px;transition:width .4s}
+.progress-fill-amber{background:var(--amber)}
+.progress-fill-red{background:var(--red)}
+.progress-fill-blue{background:var(--blue)}
+
+/* ═══════════════════════════════════════════════
+   ROLE SWITCHER (in-app header)
+═══════════════════════════════════════════════ */
+.role-switcher-bar {
+  display:flex;align-items:center;gap:10px;
+  padding:8px 20px 0;flex-shrink:0;
+}
+.rs-badge {
+  display:flex;align-items:center;gap:7px;
+  padding:5px 12px 5px 5px;
+  background:var(--surf);border:1px solid var(--bdr);
+  border-radius:var(--r50);cursor:pointer;
+}
+.rs-av {
+  width:24px;height:24px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:700;
+}
+.rs-name{font-size:12px;font-weight:600;color:var(--t1)}
+.rs-arrow{font-size:12px;color:var(--t3)}
+.rs-role-pill{margin-left:auto}
+
+/* ═══════════════════════════════════════════════
+   ███ STUDENT ROLE ███
+═══════════════════════════════════════════════ */
+
+/* — Home — */
+.score-hero {
+  margin:0 20px 16px;
+  background:linear-gradient(135deg,#0a2114,#0f2c1a);
+  border:1px solid rgba(0,196,110,.28);
+  border-radius:var(--r24);padding:20px;
+  position:relative;overflow:hidden;
+}
+.score-hero::before {
+  content:'';position:absolute;top:-40px;right:-40px;
+  width:160px;height:160px;border-radius:50%;
+  background:radial-gradient(circle,rgba(0,196,110,.18),transparent 70%);
+}
+.sh-label{font-size:11px;color:var(--t3);text-transform:uppercase;letter-spacing:1.2px}
+.sh-number {
+  font-family:var(--font-head);
+  font-size:64px;font-weight:800;color:var(--green);
+  line-height:1;margin:4px 0 0;
+}
+.sh-max{font-size:20px;color:var(--t3);font-weight:400}
+.sh-badge {
+  position:absolute;top:20px;right:20px;
+  background:rgba(0,196,110,.12);
+  border:1px solid rgba(0,196,110,.25);
+  border-radius:10px;padding:8px 14px;
+  font-size:12px;font-weight:700;color:var(--green);
+}
+.sh-segments {
+  display:flex;gap:4px;margin:14px 0 10px;
+}
+.sh-seg {
+  flex:1;height:7px;border-radius:3.5px;
+  background:rgba(0,196,110,.12);
+}
+.sh-seg.on{background:var(--green)}
+.sh-seg.half{background:linear-gradient(90deg,var(--green) 60%,rgba(0,196,110,.12) 60%)}
+.sh-meta {
+  display:flex;gap:20px;
+}
+.sh-mi{font-size:11px;color:var(--t3)}
+.sh-mi strong{color:var(--t1);font-weight:600}
+
+/* streak */
+.streak-row {
+  margin:0 20px 16px;
+  background:linear-gradient(135deg,#1a1100,#241700);
+  border:1px solid rgba(245,166,35,.2);
+  border-radius:var(--r20);
+  padding:14px 16px;
+  display:flex;align-items:center;gap:14px;
+}
+.sr-fire{font-size:34px}
+.sr-info{flex:1}
+.sr-title {
+  font-family:var(--font-head);
+  font-size:15px;font-weight:700;color:var(--amber);
+}
+.sr-sub{font-size:11px;color:var(--t3);margin-top:2px}
+.sr-days{display:flex;gap:5px;margin-top:8px}
+.sr-day {
+  width:24px;height:24px;border-radius:7px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:9px;font-weight:700;
+}
+.sr-day.d{background:var(--amber);color:#000}
+.sr-day.t{background:rgba(245,166,35,.2);border:1.5px solid var(--amber);color:var(--amber)}
+.sr-day.f{background:var(--surf2);color:var(--t4)}
+
+/* quick actions */
+.qa-grid {
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:10px;padding:0 20px;margin-bottom:20px;
+}
+.qa-item {
+  display:flex;flex-direction:column;align-items:center;gap:7px;
+  cursor:pointer;
+}
+.qa-icon {
+  width:54px;height:54px;border-radius:18px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:24px;border:1px solid transparent;
+  transition:.2s;
+}
+.qa-item:active .qa-icon{transform:scale(.92)}
+.qa-label{font-size:10px;font-weight:600;color:var(--t2);text-align:center}
+
+/* courses */
+.course-item {
+  display:flex;gap:12px;align-items:center;
+  padding:0 20px;margin-bottom:14px;
+}
+.ci-icon {
+  width:50px;height:50px;border-radius:14px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;flex-shrink:0;
+}
+.ci-body{flex:1;min-width:0}
+.ci-name {
+  font-family:var(--font-head);
+  font-size:13px;font-weight:700;color:var(--t1);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.ci-meta{font-size:11px;color:var(--t3);margin-bottom:6px}
+.ci-row{display:flex;align-items:center;gap:8px}
+.ci-pct{font-size:11px;font-weight:700;color:var(--green);white-space:nowrap}
+
+/* — Learn (Courses) — */
+.subject-tabs {
+  display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;
+  padding:0 20px 4px;margin-bottom:16px;
+}
+.subject-tabs::-webkit-scrollbar{display:none}
+.stab {
+  flex-shrink:0;padding:7px 16px;border-radius:var(--r50);
+  font-size:12px;font-weight:700;
+  background:var(--surf);border:1px solid var(--bdr);
+  color:var(--t2);cursor:pointer;transition:.2s;
+}
+.stab.active{background:var(--green);color:#000;border-color:var(--green)}
+
+.course-card-full {
+  margin:0 20px 12px;
+  background:var(--surf);border:1px solid var(--bdr);
+  border-radius:var(--r20);padding:16px;
+}
+.ccf-top {
+  display:flex;gap:12px;align-items:flex-start;
+  margin-bottom:12px;
+}
+.ccf-icon{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.ccf-info{flex:1}
+.ccf-name{font-family:var(--font-head);font-size:14px;font-weight:700;color:var(--t1)}
+.ccf-by{font-size:11px;color:var(--t3);margin-top:2px}
+.ccf-bottom {
+  display:flex;align-items:center;gap:10px;
+}
+.ccf-prog-wrap{flex:1}
+.ccf-pct{font-size:11px;font-weight:700;color:var(--green)}
+.ccf-lessons{font-size:11px;color:var(--t3)}
+.ccf-continue {
+  background:var(--green);color:#000;
+  font-family:var(--font-head);font-size:12px;font-weight:700;
+  padding:8px 16px;border-radius:10px;cursor:pointer;
+}
+
+/* — Mock Test — */
+.test-arena {
+  margin:0 20px 14px;
+  background:linear-gradient(160deg,#0a1f12,#07140c);
+  border:1px solid var(--bdr2);border-radius:var(--r24);padding:20px;
+}
+.ta-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.ta-timer{
+  font-family:var(--font-head);
+  font-size:26px;font-weight:800;color:var(--amber);
+}
+.ta-round{
+  padding:5px 12px;border-radius:var(--r50);
+  background:var(--blue-10);border:1px solid rgba(74,158,255,.25);
+  font-size:11px;font-weight:700;color:var(--blue);
+}
+.ta-question-box {
+  background:var(--surf);border-radius:var(--r16);padding:16px;
+  margin-bottom:14px;
+}
+.tq-meta{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px}
+.tq-text{font-family:var(--font-head);font-size:15px;font-weight:600;color:var(--t1);line-height:1.5}
+.ta-options{display:flex;flex-direction:column;gap:9px}
+.ta-opt {
+  display:flex;align-items:center;gap:10px;
+  padding:12px 14px;border-radius:var(--r16);
+  background:var(--surf);border:1px solid var(--bdr);
+  cursor:pointer;transition:.15s;
+}
+.ta-opt:active{transform:scale(.99)}
+.ta-opt.correct{border-color:var(--green);background:var(--green-10)}
+.ta-opt.wrong{border-color:var(--red);background:var(--red-10)}
+.ta-opt.selected{border-color:var(--blue);background:var(--blue-10)}
+.to-key {
+  width:28px;height:28px;border-radius:8px;
+  border:1px solid var(--bdr);
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:700;color:var(--t2);flex-shrink:0;
+}
+.ta-opt.correct .to-key{background:var(--green);border-color:var(--green);color:#000}
+.ta-opt.wrong .to-key{background:var(--red);border-color:var(--red);color:#fff}
+.ta-opt.selected .to-key{background:var(--blue);border-color:var(--blue);color:#fff}
+.to-text{font-size:13px;color:var(--t1)}
+.test-score-row {
+  display:flex;gap:10px;padding:0 20px;margin-bottom:14px;
+}
+.tsr-card {
+  flex:1;background:var(--surf);border:1px solid var(--bdr);
+  border-radius:var(--r16);padding:12px;text-align:center;
+}
+.tsr-num{font-family:var(--font-head);font-size:22px;font-weight:700}
+.tsr-lbl{font-size:10px;color:var(--t3);margin-top:3px}
+.test-nav {
+  display:flex;gap:10px;padding:0 20px;
+}
+.tn-btn {
+  flex:1;padding:14px;border-radius:var(--r16);
+  font-family:var(--font-head);font-size:14px;font-weight:700;
+  text-align:center;cursor:pointer;
+}
+.tn-prev{background:var(--surf);border:1px solid var(--bdr);color:var(--t2)}
+.tn-next{background:var(--green);color:#000;border:none}
+
+.company-row {
+  display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;
+  padding:0 20px;margin-bottom:16px;
+}
+.company-row::-webkit-scrollbar{display:none}
+.comp-chip {
+  flex-shrink:0;padding:8px 16px;border-radius:var(--r50);
+  background:var(--surf);border:1px solid var(--bdr);
+  display:flex;align-items:center;gap:7px;
+  font-size:12px;font-weight:700;color:var(--t2);cursor:pointer;
+}
+.comp-chip.active{border-color:var(--green);color:var(--green);background:var(--green-10)}
+
+/* — Jobs — */
+.job-card {
+  margin:0 20px 12px;
+  background:var(--surf);border:1px solid var(--bdr);
+  border-radius:var(--r20);padding:16px;
+}
+.jc-top{display:flex;gap:12px;align-items:flex-start;margin-bottom:10px}
+.jc-logo {
+  width:46px;height:46px;border-radius:14px;
+  background:var(--surf2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;flex-shrink:0;
+}
+.jc-title-wrap{flex:1}
+.jc-title{font-family:var(--font-head);font-size:14px;font-weight:700;color:var(--t1)}
+.jc-company{font-size:12px;color:var(--t3);margin-top:2px}
+.jc-match {
+  display:flex;align-items:center;gap:5px;
+  font-size:11px;font-weight:700;color:var(--green);
+  margin-bottom:8px;
+}
+.jc-match-dot{width:6px;height:6px;border-radius:50%;background:var(--green)}
+.jc-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.jc-tag {
+  padding:4px 10px;border-radius:var(--r50);
+  font-size:10px;font-weight:600;
+  background:var(--surf2);color:var(--t2);
+  border:1px solid var(--bdrw);
+}
+.jc-bottom{display:flex;align-items:center;gap:10px}
+.jc-salary{font-family:var(--font-head);font-size:16px;font-weight:800;color:var(--green)}
+.jc-lpa{font-size:11px;color:var(--t3)}
+.jc-apply {
+  margin-left:auto;
+  background:var(--green);color:#000;
+  font-family:var(--font-head);font-size:12px;font-weight:700;
+  padding:9px 18px;border-radius:12px;cursor:pointer;
+}
+
+/* — Leaderboard — */
+.lb-tabs {
+  display:flex;background:var(--surf);
+  border-radius:14px;padding:4px;
+  margin:0 20px 16px;gap:4px;
+}
+.lb-tab {
+  flex:1;padding:9px;border-radius:11px;
+  font-size:12px;font-weight:700;
+  color:var(--t3);text-align:center;cursor:pointer;
+}
+.lb-tab.active{background:var(--green);color:#000}
+.podium {
+  display:flex;align-items:flex-end;justify-content:center;
+  gap:10px;padding:0 20px 24px;
+}
+.pod-col{display:flex;flex-direction:column;align-items:center;gap:8px}
+.pod-av {
+  border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-head);font-weight:700;position:relative;
+}
+.pod-crown{position:absolute;top:-16px;font-size:16px}
+.pod-1 .pod-av{width:60px;height:60px;font-size:20px;border:3px solid var(--amber)}
+.pod-2 .pod-av{width:50px;height:50px;font-size:16px;border:2px solid #a0a0a0}
+.pod-3 .pod-av{width:50px;height:50px;font-size:16px;border:2px solid #cd7f32}
+.pod-name{font-size:11px;font-weight:700;color:var(--t1)}
+.pod-coll{font-size:9px;color:var(--t3)}
+.pod-score{font-family:var(--font-head);font-size:13px;font-weight:700;color:var(--green)}
+.pod-block {
+  border-radius:10px 10px 0 0;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-head);font-size:18px;font-weight:800;
+  color:rgba(255,255,255,.25);
+}
+.pod-1 .pod-block{width:80px;height:68px;background:linear-gradient(180deg,rgba(245,166,35,.25),rgba(245,166,35,.08));border:1px solid rgba(245,166,35,.3)}
+.pod-2 .pod-block{width:70px;height:52px;background:linear-gradient(180deg,rgba(192,192,192,.18),rgba(192,192,192,.05));border:1px solid rgba(192,192,192,.2)}
+.pod-3 .pod-block{width:70px;height:40px;background:linear-gradient(180deg,rgba(205,127,50,.18),rgba(205,127,50,.05));border:1px solid rgba(205,127,50,.2)}
+.lb-list{padding:0 20px;display:flex;flex-direction:column;gap:10px}
+.lb-row {
+  display:flex;align-items:center;gap:12px;
+  padding:12px 14px;
+  background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r16);
+}
+.lb-row.me{border-color:var(--green);background:var(--green-10)}
+.lb-rank{font-family:var(--font-head);font-size:14px;font-weight:800;color:var(--t3);width:24px;text-align:center}
+.lb-info{flex:1}
+.lb-name{font-size:13px;font-weight:600;color:var(--t1)}
+.lb-coll{font-size:10px;color:var(--t3)}
+.lb-pts{font-family:var(--font-head);font-size:14px;font-weight:700;color:var(--green)}
+
+/* — Profile — */
+.profile-hero {
+  background:linear-gradient(160deg,#0c2218,var(--bg));
+  padding:14px 20px 24px;
+  text-align:center;flex-shrink:0;
+}
+.ph-avatar {
+  width:84px;height:84px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-head);font-size:30px;font-weight:800;
+  margin:0 auto 12px;
+  box-shadow:0 0 0 4px rgba(0,196,110,.25);
+}
+.ph-name{font-family:var(--font-head);font-size:20px;font-weight:800;color:var(--t1)}
+.ph-college{font-size:13px;color:var(--t3);margin-top:4px;margin-bottom:14px}
+.ph-chips{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.stats-2x2 {
+  display:grid;grid-template-columns:1fr 1fr;gap:10px;
+  padding:0 20px;margin-bottom:16px;
+}
+.stat-tile {
+  background:var(--surf);border:1px solid var(--bdr);
+  border-radius:var(--r16);padding:14px;
+}
+.st-num{font-family:var(--font-head);font-size:26px;font-weight:800;color:var(--green)}
+.st-lbl{font-size:11px;color:var(--t3);margin-top:3px}
+.ach-grid {
+  display:grid;grid-template-columns:repeat(3,1fr);gap:10px;
+  padding:0 20px;margin-bottom:16px;
+}
+.ach-item {
+  background:var(--surf);border:1px solid var(--bdr);
+  border-radius:var(--r16);padding:12px;text-align:center;
+}
+.ach-item.locked{opacity:.35;filter:grayscale(1)}
+.ai-icon{font-size:24px;margin-bottom:6px;display:block}
+.ai-name{font-size:10px;color:var(--t2);font-weight:600}
+
+/* ═══════════════════════════════════════════════
+   ███ TPO ROLE ███
+═══════════════════════════════════════════════ */
+.tpo-hero {
+  background:linear-gradient(160deg,#0d2014,#080f09);
+  padding:14px 20px 20px;
+  position:relative;overflow:hidden;flex-shrink:0;
+}
+.tpo-hero-bg {
+  position:absolute;inset:0;
+  background:radial-gradient(ellipse at top right,rgba(0,196,110,.1),transparent 60%);
+  pointer-events:none;
+}
+.tpo-greet{font-size:12px;color:var(--t3);position:relative;z-index:1}
+.tpo-name {
+  font-family:var(--font-head);font-size:22px;font-weight:800;
+  color:var(--t1);margin-bottom:16px;position:relative;z-index:1;
+}
+.tpo-kpis {
+  display:grid;grid-template-columns:1fr 1fr;gap:10px;
+  position:relative;z-index:1;
+}
+.tpo-kpi {
+  background:rgba(0,196,110,.08);border:1px solid rgba(0,196,110,.15);
+  border-radius:var(--r16);padding:14px;
+}
+.tk-num{font-family:var(--font-head);font-size:28px;font-weight:800;color:var(--green);display:block}
+.tk-lbl{font-size:11px;color:var(--t3)}
+.tk-delta{font-size:10px;color:var(--green);font-weight:700;display:block;margin-top:4px}
+
+.alert-card {
+  margin:0 20px 10px;
+  border-radius:var(--r16);padding:14px;
+  display:flex;gap:12px;align-items:flex-start;
+}
+.ac-amber{background:rgba(245,166,35,.07);border:1px solid rgba(245,166,35,.2)}
+.ac-blue{background:var(--blue-10);border:1px solid rgba(74,158,255,.2)}
+.ac-red{background:var(--red-10);border:1px solid rgba(255,94,94,.2)}
+.ac-green{background:var(--green-10);border:1px solid var(--bdr2)}
+.ac-icon{font-size:18px;flex-shrink:0;margin-top:2px}
+.ac-body{flex:1}
+.ac-head{font-size:13px;font-weight:700;color:var(--t1);margin-bottom:3px}
+.ac-text{font-size:11px;color:var(--t3);line-height:1.5}
+.ac-action{
+  display:inline-block;margin-top:8px;
+  font-size:12px;font-weight:700;cursor:pointer;
+}
+.ac-amber .ac-action{color:var(--amber)}
+.ac-blue .ac-action{color:var(--blue)}
+.ac-red .ac-action{color:var(--red)}
+.ac-green .ac-action{color:var(--green)}
+
+.student-bar-row {
+  display:flex;align-items:center;gap:10px;margin-bottom:12px;
+}
+.sbr-name{font-size:12px;color:var(--t2);width:96px;flex-shrink:0}
+.sbr-fill{height:8px;border-radius:4px;transition:width .4s}
+.sbr-score{font-size:11px;font-weight:700;color:var(--t1);width:28px;text-align:right}
+
+.drive-card {
+  margin:0 20px 12px;
+  background:var(--surf);border:1px solid var(--bdr);
+  border-radius:var(--r20);padding:16px;
+}
+.dc-top{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.dc-logo{width:44px;height:44px;border-radius:12px;background:var(--surf2);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.dc-info{flex:1}
+.dc-company{font-family:var(--font-head);font-size:14px;font-weight:700;color:var(--t1)}
+.dc-role{font-size:12px;color:var(--t3);margin-top:2px}
+.dc-stats{display:flex;gap:16px}
+.dc-stat{font-size:11px;color:var(--t3)}
+.dc-stat strong{color:var(--t1);font-weight:700}
+.dc-actions{display:flex;gap:8px;margin-top:12px}
+.dc-btn {
+  flex:1;padding:10px;border-radius:12px;
+  font-family:var(--font-head);font-size:12px;font-weight:700;
+  text-align:center;cursor:pointer;
+}
+.dc-btn-g{background:var(--green);color:#000;border:none}
+.dc-btn-s{background:var(--surf2);border:1px solid var(--bdr);color:var(--t2)}
+
+.naac-banner {
+  margin:0 20px 16px;
+  background:linear-gradient(135deg,#091e0f,#0d2a15);
+  border:1px solid rgba(0,196,110,.25);border-radius:var(--r20);
+  padding:16px;display:flex;align-items:center;gap:14px;cursor:pointer;
+}
+.nb-icon{font-size:30px}
+.nb-text{flex:1}
+.nb-head{font-family:var(--font-head);font-size:14px;font-weight:700;color:var(--t1)}
+.nb-sub{font-size:11px;color:var(--t3);margin-top:3px}
+.nb-arrow {
+  width:34px;height:34px;background:var(--green);
+  border-radius:10px;display:flex;align-items:center;justify-content:center;
+  font-size:16px;color:#000;font-weight:700;
+}
+
+/* ═══════════════════════════════════════════════
+   ███ PRINCIPAL / HOD ROLE ███
+═══════════════════════════════════════════════ */
+.hod-hero {
+  background:linear-gradient(160deg,#070f1e,#09101a);
+  padding:14px 20px 20px;
+  position:relative;overflow:hidden;flex-shrink:0;
+}
+.hod-hero-bg{
+  position:absolute;inset:0;
+  background:radial-gradient(ellipse at top left,rgba(74,158,255,.1),transparent 60%);
+  pointer-events:none;
+}
+.hod-kpis {
+  display:grid;grid-template-columns:1fr 1fr;gap:10px;
+  position:relative;z-index:1;
+}
+.hod-kpi {
+  background:rgba(74,158,255,.08);border:1px solid rgba(74,158,255,.15);
+  border-radius:var(--r16);padding:14px;
+}
+.hk-num{font-family:var(--font-head);font-size:26px;font-weight:800;color:var(--blue);display:block}
+.hk-lbl{font-size:11px;color:var(--t3)}
+
+.dept-bar-card {
+  margin:0 20px 14px;
+  background:var(--surf);border:1px solid var(--bdr);
+  border-radius:var(--r20);padding:16px;
+}
+.dept-row {
+  display:flex;align-items:center;gap:10px;margin-bottom:12px;
+}
+.dept-name{font-size:12px;color:var(--t2);width:54px;flex-shrink:0;font-weight:600}
+.dept-track{flex:1;height:10px;background:var(--surf2);border-radius:5px;overflow:hidden}
+.dept-fill{height:100%;border-radius:5px}
+.dept-pct{font-size:11px;font-weight:700;width:30px;text-align:right}
+
+.analytics-card {
+  margin:0 20px 14px;
+  background:var(--surf);border:1px solid var(--bdr);
+  border-radius:var(--r20);padding:16px;
+}
+.mini-bar-chart {
+  display:flex;align-items:flex-end;gap:6px;
+  height:80px;margin-top:12px;
+}
+.mbc-col{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1}
+.mbc-bar {
+  width:100%;border-radius:5px 5px 0 0;
+  transition:height .4s;min-height:4px;
+}
+.mbc-label{font-size:9px;color:var(--t3)}
+
+/* ═══════════════════════════════════════════════
+   ███ ADMIN / CEO ROLE ███
+═══════════════════════════════════════════════ */
+.admin-hero {
+  background:linear-gradient(160deg,#100816,#0c0a14);
+  padding:14px 20px 20px;
+  position:relative;overflow:hidden;flex-shrink:0;
+}
+.admin-hero-bg{
+  position:absolute;inset:0;
+  background:radial-gradient(ellipse at top right,rgba(167,139,250,.1),transparent 60%);
+  pointer-events:none;
+}
+.admin-kpis {
+  display:grid;grid-template-columns:1fr 1fr;gap:10px;
+  position:relative;z-index:1;margin-top:12px;
+}
+.ak {
+  border-radius:var(--r16);padding:14px;
+}
+.ak-purple{background:var(--purple-10);border:1px solid rgba(167,139,250,.2)}
+.ak-green{background:var(--green-10);border:1px solid var(--bdr2)}
+.ak-amber{background:var(--amber-10);border:1px solid rgba(245,166,35,.2)}
+.ak-blue{background:var(--blue-10);border:1px solid rgba(74,158,255,.2)}
+.ak-num{font-family:var(--font-head);font-size:26px;font-weight:800;display:block}
+.ak-lbl{font-size:11px;color:var(--t3)}
+.ak-delta{font-size:10px;font-weight:700;display:block;margin-top:4px}
+.ak-purple .ak-num{color:var(--purple)}
+.ak-purple .ak-delta{color:var(--purple)}
+.ak-green .ak-num{color:var(--green)}
+.ak-green .ak-delta{color:var(--green)}
+.ak-amber .ak-num{color:var(--amber)}
+.ak-amber .ak-delta{color:var(--amber)}
+.ak-blue .ak-num{color:var(--blue)}
+.ak-blue .ak-delta{color:var(--blue)}
+
+.mou-card {
+  margin:0 20px 12px;
+  background:var(--surf);border:1px solid var(--bdr);
+  border-radius:var(--r20);padding:16px;
+}
+.mc-top{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.mc-ava{width:40px;height:40px;border-radius:12px;background:var(--surf2);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.mc-info{flex:1}
+.mc-name{font-family:var(--font-head);font-size:13px;font-weight:700;color:var(--t1)}
+.mc-loc{font-size:11px;color:var(--t3);margin-top:2px}
+.mc-bottom{display:flex;align-items:center;gap:10px}
+.mc-tier {
+  padding:4px 10px;border-radius:var(--r50);
+  font-size:10px;font-weight:700;
+}
+.mc-tier-a{background:var(--green-10);color:var(--green);border:1px solid var(--bdr2)}
+.mc-tier-b{background:var(--blue-10);color:var(--blue);border:1px solid rgba(74,158,255,.25)}
+.mc-tier-c{background:var(--surf2);color:var(--t2);border:1px solid var(--bdrw)}
+.mc-students{font-size:11px;color:var(--t3)}
+.mc-status{margin-left:auto;font-size:11px;font-weight:700}
+.mc-status.active{color:var(--green)}
+.mc-status.pending{color:var(--amber)}
+
+.pipeline-card {
+  margin:0 20px 14px;
+  background:var(--surf);border:1px solid var(--bdr);
+  border-radius:var(--r20);padding:16px;
+}
+.pipeline-stages {
+  display:flex;gap:0;margin-top:12px;overflow-x:auto;scrollbar-width:none;
+}
+.pipeline-stages::-webkit-scrollbar{display:none}
+.ps-col{
+  flex-shrink:0;width:80px;
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+}
+.ps-circle {
+  width:44px;height:44px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-head);font-size:14px;font-weight:700;
+  position:relative;
+}
+.ps-line {
+  position:absolute;top:50%;left:100%;
+  width:36px;height:2px;
+  transform:translateY(-50%);
+}
+.ps-label{font-size:9px;color:var(--t3);text-align:center;line-height:1.3}
+.ps-count{font-family:var(--font-head);font-size:12px;font-weight:700}
+
+.revenue-chart {
+  margin:0 20px 14px;
+  background:var(--surf);border:1px solid var(--bdr);
+  border-radius:var(--r20);padding:16px;
+}
+.rev-bars {
+  display:flex;align-items:flex-end;gap:8px;
+  height:100px;margin-top:14px;
+}
+.rev-col{display:flex;flex-direction:column;align-items:center;gap:6px;flex:1}
+.rev-bar{
+  width:100%;border-radius:6px 6px 0 0;
+  transition:height .5s;
+}
+.rev-bar.current{background:var(--green)}
+.rev-bar.past{background:var(--surf3)}
+.rev-lbl{font-size:9px;color:var(--t3)}
+.rev-val{font-size:9px;font-weight:700;color:var(--green)}
+
+/* ═══════════════════════════════════════════════
+   ███ MENTOR / ALUMNI ROLE ███
+═══════════════════════════════════════════════ */
+.mentor-hero {
+  background:linear-gradient(160deg,#120a1e,#0d0714);
+  padding:14px 20px 20px;flex-shrink:0;
+  position:relative;overflow:hidden;
+}
+.mentor-hero-bg{
+  position:absolute;inset:0;
+  background:radial-gradient(ellipse at bottom left,rgba(167,139,250,.12),transparent 60%);
+  pointer-events:none;
+}
+.mentor-kpis{
+  display:flex;gap:10px;margin-top:12px;
+  position:relative;z-index:1;
+}
+.mk{
+  flex:1;border-radius:var(--r16);padding:12px;text-align:center;
+}
+.mk-purple{background:var(--purple-10);border:1px solid rgba(167,139,250,.2)}
+.mk-amber{background:var(--amber-10);border:1px solid rgba(245,166,35,.2)}
+.mk-green{background:var(--green-10);border:1px solid var(--bdr2)}
+.mk-num{font-family:var(--font-head);font-size:22px;font-weight:800}
+.mk-lbl{font-size:10px;color:var(--t3);margin-top:3px}
+.mk-purple .mk-num{color:var(--purple)}
+.mk-amber .mk-num{color:var(--amber)}
+.mk-green .mk-num{color:var(--green)}
+
+.booking-card {
+  margin:0 20px 12px;
+  background:var(--surf);border:1px solid var(--bdr);
+  border-radius:var(--r20);padding:16px;
+}
+.bk-top{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.bk-info{flex:1}
+.bk-student{font-family:var(--font-head);font-size:13px;font-weight:700;color:var(--t1)}
+.bk-college{font-size:11px;color:var(--t3);margin-top:2px}
+.bk-bottom{display:flex;align-items:center;gap:10px}
+.bk-time{font-size:12px;font-weight:600;color:var(--amber)}
+.bk-topic{font-size:11px;color:var(--t3)}
+.bk-actions{display:flex;gap:8px;margin-top:12px}
+.bk-btn {
+  flex:1;padding:10px;border-radius:12px;
+  font-family:var(--font-head);font-size:12px;font-weight:700;
+  text-align:center;cursor:pointer;
+}
+.bk-accept{background:var(--green);color:#000;border:none}
+.bk-reschedule{background:var(--surf2);border:1px solid var(--bdr);color:var(--t2)}
+
+/* ═══════════════════════════════════════════════
+   MODAL / OVERLAY
+═══════════════════════════════════════════════ */
+.modal-overlay {
+  position:absolute;inset:0;z-index:200;
+  background:rgba(0,0,0,.7);backdrop-filter:blur(6px);
+  display:none;align-items:flex-end;justify-content:center;
+}
+.modal-overlay.open{display:flex}
+.modal-sheet {
+  width:100%;background:var(--bg3);
+  border-radius:28px 28px 0 0;
+  border:1px solid var(--bdr);
+  border-bottom:none;
+  padding:20px 20px 40px;
+  max-height:85%;
+  overflow-y:auto;scrollbar-width:none;
+}
+.modal-sheet::-webkit-scrollbar{display:none}
+.modal-handle {
+  width:40px;height:4px;border-radius:2px;
+  background:var(--surf3);
+  margin:0 auto 20px;
+}
+.modal-title {
+  font-family:var(--font-head);
+  font-size:18px;font-weight:800;color:var(--t1);
+  margin-bottom:16px;
+}
+
+/* ═══════════════════════════════════════════════
+   NOTIFICATION TOAST
+═══════════════════════════════════════════════ */
+.toast {
+  position:absolute;top:54px;left:16px;right:16px;z-index:300;
+  background:var(--surf);border:1px solid var(--bdr2);
+  border-radius:var(--r16);padding:14px 16px;
+  display:flex;align-items:center;gap:12px;
+  transform:translateY(-120%);
+  transition:transform .3s cubic-bezier(.34,1.56,.64,1);
+}
+.toast.show{transform:translateY(0)}
+.toast-icon{font-size:20px;flex-shrink:0}
+.toast-text {font-size:13px;color:var(--t1);font-weight:500;line-height:1.4}
+.toast-close{margin-left:auto;font-size:16px;color:var(--t3);cursor:pointer}
+
+/* ═══════════════════════════════════════════════
+   AI CHAT BUBBLE
+═══════════════════════════════════════════════ */
+.ai-bubble {
+  margin:0 20px 14px;
+  background:linear-gradient(135deg,#0d2217,#112b1b);
+  border:1px solid rgba(0,196,110,.2);
+  border-radius:18px 18px 18px 4px;
+  padding:16px;
+}
+.ab-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.ab-av {
+  width:32px;height:32px;border-radius:50%;
+  background:var(--green);
+  display:flex;align-items:center;justify-content:center;font-size:16px;
+}
+.ab-name{font-size:12px;font-weight:700;color:var(--green)}
+.ab-text{font-size:13px;color:var(--t2);line-height:1.6}
+.ab-text strong{color:var(--t1);font-weight:600}
+
+/* ═══════════════════════════════════════════════
+   SEARCH BAR
+═══════════════════════════════════════════════ */
+.search-bar {
+  display:flex;align-items:center;gap:10px;
+  background:var(--surf);border:1px solid var(--bdr);
+  border-radius:var(--r16);padding:11px 14px;
+  margin:0 20px 14px;
+}
+.sb-icon{font-size:16px;color:var(--t3)}
+.sb-input {
+  background:none;border:none;outline:none;
+  font-size:13px;color:var(--t1);flex:1;
+  font-family:var(--font-body);
+}
+.sb-input::placeholder{color:var(--t3)}
+
+/* ═══════════════════════════════════════════════
+   INTRO ANIMATION
+═══════════════════════════════════════════════ */
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(20px)}
+  to{opacity:1;transform:translateY(0)}
+}
+.anim-fade-up{animation:fadeUp .4s ease forwards}
+.anim-delay-1{animation-delay:.05s;opacity:0}
+.anim-delay-2{animation-delay:.1s;opacity:0}
+.anim-delay-3{animation-delay:.15s;opacity:0}
+.anim-delay-4{animation-delay:.2s;opacity:0}
+.anim-delay-5{animation-delay:.25s;opacity:0}
+
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+.live-dot{
+  width:8px;height:8px;border-radius:50%;
+  background:var(--red);
+  animation:pulse 1.5s infinite;
+  display:inline-block;margin-right:4px;
+}
+
+/* ═══════════════════════════════════════════════
+   DEVICE LABEL + SWITCHER
+═══════════════════════════════════════════════ */
+.device-label {
+  display:flex;align-items:center;gap:12px;
+  margin-top:16px;padding:0 8px;
+}
+.role-pill {
+  padding:6px 16px;border-radius:var(--r50);
+  font-family:var(--font-head);font-size:13px;font-weight:700;
+  border:1px solid;cursor:pointer;transition:.2s;
+}
+.role-pill:hover{transform:scale(1.05)}
+.rp-student{background:var(--green-10);color:var(--green);border-color:var(--bdr2)}
+.rp-tpo{background:var(--blue-10);color:var(--blue);border-color:rgba(74,158,255,.25)}
+.rp-hod{background:var(--purple-10);color:var(--purple);border-color:rgba(167,139,250,.25)}
+.rp-admin{background:var(--amber-10);color:var(--amber);border-color:rgba(245,166,35,.25)}
+.rp-mentor{background:var(--pink-10);color:var(--pink);border-color:rgba(244,114,182,.25)}
+.back-btn {
+  padding:8px 16px;border-radius:var(--r50);
+  background:var(--surf);border:1px solid var(--bdr);
+  color:var(--t2);font-size:13px;font-weight:600;cursor:pointer;
+}
+
+/* cert */
+.cert-card2 {
+  margin:0 20px 14px;
+  background:linear-gradient(135deg,#0a1f0e,#0d2a14);
+  border:1px solid rgba(0,196,110,.3);
+  border-radius:var(--r24);padding:20px;
+  position:relative;overflow:hidden;
+}
+.cert-card2::before{
+  content:'';position:absolute;top:-30px;right:-30px;
+  width:130px;height:130px;border-radius:50%;
+  background:radial-gradient(circle,rgba(0,196,110,.14),transparent 70%);
+}
+.cc2-top{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.cc2-badge{width:50px;height:50px;background:var(--green);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px}
+.cc2-name{font-family:var(--font-head);font-size:15px;font-weight:700;color:var(--t1)}
+.cc2-issuer{font-size:11px;color:var(--t3);margin-top:3px}
+.cc2-verify {
+  background:rgba(0,196,110,.1);border:1px solid var(--bdr2);
+  border-radius:12px;padding:9px 12px;
+  display:flex;align-items:center;gap:8px;margin-bottom:14px;
+}
+.cc2-id{font-family:var(--font-head);font-size:11px;color:var(--green);margin-left:auto}
+.cc2-share{display:flex;gap:8px}
+.cc2-li{background:#0077b5;color:#fff;padding:10px;border-radius:12px;font-family:var(--font-head);font-size:12px;font-weight:700;text-align:center;flex:1;cursor:pointer}
+.cc2-dl{background:var(--surf);border:1px solid var(--bdr);color:var(--t2);padding:10px;border-radius:12px;font-size:12px;font-weight:700;text-align:center;flex:1;cursor:pointer}
+</style>
+</head>
+<body>
+
+<!-- BG ORBS -->
+<div class="bg-orbs">
+  <div class="orb" style="width:500px;height:500px;top:-100px;right:-150px;opacity:.5"></div>
+  <div class="orb" style="width:400px;height:400px;bottom:-100px;left:-100px;opacity:.3"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+  ROLE SELECTOR
+═══════════════════════════════════════════ -->
+<div id="role-selector">
+  <div class="entry-logo anim-fade-up">
+    <div class="leaf-mark"></div>
+    <div class="brand-name">Gyaan<em>Plant</em></div>
+  </div>
+  <div class="entry-title anim-fade-up anim-delay-1">Choose Your Role<br>to Explore the App</div>
+  <div class="entry-sub anim-fade-up anim-delay-2">Full interactive prototype — all screens unlocked</div>
+  <div class="role-cards anim-fade-up anim-delay-3">
+    <div class="role-card" onclick="loadRole('student')">
+      <div class="role-card-icon av-green" style="background:var(--green-10);border:1px solid var(--bdr2);">🎓</div>
+      <div class="role-card-text">
+        <div class="role-card-name">Student</div>
+        <div class="role-card-desc">Learn, practice, get placed — full student journey</div>
+      </div>
+      <div class="role-card-arrow">→</div>
+    </div>
+    <div class="role-card" onclick="loadRole('tpo')">
+      <div class="role-card-icon" style="background:var(--blue-10);border:1px solid rgba(74,158,255,.25);">🏫</div>
+      <div class="role-card-text">
+        <div class="role-card-name">TPO — Training & Placement Officer</div>
+        <div class="role-card-desc">Manage drives, track readiness, generate NAAC reports</div>
+      </div>
+      <div class="role-card-arrow">→</div>
+    </div>
+    <div class="role-card" onclick="loadRole('hod')">
+      <div class="role-card-icon" style="background:var(--purple-10);border:1px solid rgba(167,139,250,.25);">📐</div>
+      <div class="role-card-text">
+        <div class="role-card-name">HOD / Principal</div>
+        <div class="role-card-desc">Department analytics, syllabus mapping, accreditation</div>
+      </div>
+      <div class="role-card-arrow">→</div>
+    </div>
+    <div class="role-card" onclick="loadRole('admin')">
+      <div class="role-card-icon" style="background:var(--amber-10);border:1px solid rgba(245,166,35,.25);">⚡</div>
+      <div class="role-card-text">
+        <div class="role-card-name">Admin / CEO</div>
+        <div class="role-card-desc">Platform KPIs, MOU pipeline, revenue & growth</div>
+      </div>
+      <div class="role-card-arrow">→</div>
+    </div>
+    <div class="role-card" onclick="loadRole('mentor')">
+      <div class="role-card-icon" style="background:var(--pink-10);border:1px solid rgba(244,114,182,.25);">🧑‍💼</div>
+      <div class="role-card-text">
+        <div class="role-card-name">Alumni Mentor</div>
+        <div class="role-card-desc">Manage bookings, sessions, earnings dashboard</div>
+      </div>
+      <div class="role-card-arrow">→</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+  DEVICE CONTAINER
+═══════════════════════════════════════════ -->
+<div id="device-container">
+  <div class="device-frame">
+    <div class="device-notch"></div>
+    <div class="app-viewport" id="app-viewport">
+      <!-- screens injected here -->
+    </div>
+  </div>
+  <div class="device-label">
+    <div class="back-btn" onclick="goBack()">← Roles</div>
+    <div id="current-role-pill" class="role-pill"></div>
+    <div style="font-size:12px;color:var(--t3);margin-left:auto">Tap nav to explore</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+  TOAST
+═══════════════════════════════════════════ -->
+<div class="toast" id="toast">
+  <div class="toast-icon" id="toast-icon">✅</div>
+  <div class="toast-text" id="toast-text"></div>
+  <div class="toast-close" onclick="hideToast()">×</div>
+</div>
+
+<script>
+/* ════════════════════════════════════
+   STATE
+════════════════════════════════════ */
+let currentRole = null;
+let currentScreen = null;
+let toastTimer = null;
+
+/* ════════════════════════════════════
+   ENTRY
+════════════════════════════════════ */
+function loadRole(role) {
+  currentRole = role;
+  document.getElementById('role-selector').style.display = 'none';
+  const dc = document.getElementById('device-container');
+  dc.style.display = 'flex';
+
+  // pill
+  const pill = document.getElementById('current-role-pill');
+  const roleData = {
+    student: {label:'🎓 Student', cls:'rp-student'},
+    tpo:     {label:'🏫 TPO',     cls:'rp-tpo'},
+    hod:     {label:'📐 HOD',     cls:'rp-hod'},
+    admin:   {label:'⚡ Admin',   cls:'rp-admin'},
+    mentor:  {label:'🧑‍💼 Mentor', cls:'rp-mentor'},
+  };
+  const rd = roleData[role];
+  pill.className = 'role-pill ' + rd.cls;
+  pill.textContent = rd.label;
+
+  // render
+  const vp = document.getElementById('app-viewport');
+  vp.innerHTML = '';
+
+  if(role === 'student') renderStudent(vp);
+  else if(role === 'tpo')  renderTPO(vp);
+  else if(role === 'hod')  renderHOD(vp);
+  else if(role === 'admin') renderAdmin(vp);
+  else if(role === 'mentor') renderMentor(vp);
+
+  showToast('👋', 'Welcome! Tap the bottom navigation to explore all screens.');
+}
+
+function goBack() {
+  document.getElementById('device-container').style.display = 'none';
+  document.getElementById('role-selector').style.display = 'flex';
+  currentRole = null;
+}
+
+/* ════════════════════════════════════
+   SCREEN NAVIGATION
+════════════════════════════════════ */
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => {
+    s.classList.remove('active');
+    s.style.display = 'none';
+  });
+  const sc = document.getElementById(id);
+  if(sc){ sc.style.display = 'flex'; sc.classList.add('active'); }
+
+  // nav highlight
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const navFor = document.querySelector(`[data-screen="${id}"]`);
+  if(navFor) navFor.classList.add('active');
+
+  currentScreen = id;
+}
+
+/* ════════════════════════════════════
+   TOAST
+════════════════════════════════════ */
+function showToast(icon, text, dur=3200) {
+  clearTimeout(toastTimer);
+  document.getElementById('toast-icon').textContent = icon;
+  document.getElementById('toast-text').textContent = text;
+  const t = document.getElementById('toast');
+  t.classList.add('show');
+  toastTimer = setTimeout(hideToast, dur);
+}
+function hideToast(){
+  document.getElementById('toast').classList.remove('show');
+}
+
+/* ════════════════════════════════════
+   MODAL
+════════════════════════════════════ */
+function openModal(id){ document.getElementById(id).classList.add('open'); }
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+
+/* ════════════════════════════════════
+   INTERACTIVE: TEST ANSWER
+════════════════════════════════════ */
+function selectAnswer(el, correct) {
+  if(el.parentElement.querySelector('.correct,.wrong')) return;
+  if(correct) {
+    el.classList.add('correct');
+    el.querySelector('.to-key').textContent = '✓';
+    showToast('✅', 'Correct! +10 points added.');
+  } else {
+    el.classList.add('wrong');
+    el.querySelector('.to-key').textContent = '✗';
+    el.parentElement.querySelectorAll('.ta-opt')[1].classList.add('correct');
+    showToast('💡', 'Wrong! The correct answer was B.');
+  }
+}
+
+/* ════════════════════════════════════
+   INTERACTIVE: APPLY JOB
+════════════════════════════════════ */
+function applyJob(btn, company) {
+  btn.textContent = '✓ Applied';
+  btn.style.background = 'var(--surf2)';
+  btn.style.color = 'var(--green)';
+  btn.style.border = '1px solid var(--bdr2)';
+  showToast('🎉', `Application sent to ${company}! TPO notified.`);
+}
+
+/* ════════════════════════════════════
+   INTERACTIVE: DRIVE ACTION
+════════════════════════════════════ */
+function driveAction(action, company) {
+  const msgs = {
+    notify: ['📱', `WhatsApp sent to 342 eligible students for ${company} drive!`],
+    shortlist: ['📋', `Shortlist exported for ${company}. 312 students qualified.`],
+    report: ['📊', 'NAAC Q3 report generated! Download ready in your files.'],
+  };
+  const [icon, msg] = msgs[action] || ['✅','Done'];
+  showToast(icon, msg);
+}
+
+/* ════════════════════════════════════
+   INTERACTIVE: MARK SELECTED
+════════════════════════════════════ */
+function sendWhatsApp(name) {
+  showToast('📱', `WhatsApp report card sent to ${name}'s parents!`);
+}
+
+/* ════════════════════════════════════
+   ██ RENDER STUDENT ██
+════════════════════════════════════ */
+function renderStudent(vp) {
+  vp.innerHTML = `
+  ${studentScreenHome()}
+  ${studentScreenLearn()}
+  ${studentScreenTest()}
+  ${studentScreenJobs()}
+  ${studentScreenLeaderboard()}
+  ${studentScreenProfile()}
+  ${navBar('student')}
+  ${modalCareerAdvisor()}
+  `;
+  showScreen('s-home');
+}
+
+function navBar(role) {
+  const navs = {
+    student: [
+      {id:'s-home', icon:'🏠', label:'Home'},
+      {id:'s-learn', icon:'📚', label:'Learn'},
+      {id:'s-test', icon:'🎯', label:'Test'},
+      {id:'s-jobs', icon:'💼', label:'Jobs'},
+      {id:'s-profile', icon:'👤', label:'Profile'},
+    ],
+    tpo: [
+      {id:'t-home', icon:'🏠', label:'Home'},
+      {id:'t-students', icon:'👥', label:'Students'},
+      {id:'t-drives', icon:'📅', label:'Drives'},
+      {id:'t-reports', icon:'📊', label:'Reports'},
+      {id:'t-settings', icon:'⚙️', label:'Settings'},
+    ],
+    hod: [
+      {id:'h-home', icon:'🏠', label:'Overview'},
+      {id:'h-dept', icon:'📐', label:'Depts'},
+      {id:'h-analytics', icon:'📈', label:'Analytics'},
+      {id:'h-naac', icon:'📋', label:'NAAC'},
+      {id:'h-settings', icon:'⚙️', label:'Settings'},
+    ],
+    admin: [
+      {id:'a-home', icon:'⚡', label:'Dashboard'},
+      {id:'a-colleges', icon:'🏫', label:'Colleges'},
+      {id:'a-revenue', icon:'💰', label:'Revenue'},
+      {id:'a-team', icon:'👥', label:'Team'},
+      {id:'a-settings', icon:'⚙️', label:'Settings'},
+    ],
+    mentor: [
+      {id:'m-home', icon:'🏠', label:'Home'},
+      {id:'m-bookings', icon:'📅', label:'Bookings'},
+      {id:'m-sessions', icon:'💬', label:'Sessions'},
+      {id:'m-earnings', icon:'💰', label:'Earnings'},
+      {id:'m-profile', icon:'👤', label:'Profile'},
+    ],
+  };
+  return `<nav class="nav-bar">${navs[role].map((n,i)=>`
+    <div class="nav-item${i===0?' active':''}" data-screen="${n.id}" onclick="showScreen('${n.id}')">
+      <div class="nav-icon">${n.icon}</div>
+      <div class="nav-label">${n.label}</div>
+      ${i===0?'<div class="nav-dot"></div>':''}
+    </div>`).join('')}</nav>`;
+}
+
+function studentScreenHome() { return `
+<div class="screen active" id="s-home">
+  <div class="status-bar"><span>9:41</span><div class="sb-right">▂▄▆ 🔋</div></div>
+  <div class="scroll-area">
+    <!-- header -->
+    <div style="padding:0 20px 16px;display:flex;justify-content:space-between;align-items:flex-start">
+      <div>
+        <div style="font-size:12px;color:var(--t3)">Good morning 👋</div>
+        <div style="font-family:var(--font-head);font-size:22px;font-weight:800;color:var(--t1)">Arjun <span style="color:var(--green)">Kumar</span></div>
+        <div style="font-size:12px;color:var(--t3);margin-top:3px">TCS drive in <strong style="color:var(--amber)">12 days</strong></div>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center">
+        <div style="position:relative;width:36px;height:36px;background:var(--surf);border:1px solid var(--bdr);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer" onclick="showToast('🔔','3 new notifications!')">🔔<div style="position:absolute;top:6px;right:6px;width:8px;height:8px;background:var(--red);border-radius:50%;border:2px solid var(--bg)"></div></div>
+        <div class="avatar av-green" style="width:36px;height:36px;font-size:13px;font-weight:800">AK</div>
+      </div>
+    </div>
+
+    <!-- score hero -->
+    <div class="score-hero anim-fade-up">
+      <div class="sh-label">AI Placement Readiness Score</div>
+      <div style="display:flex;align-items:flex-end;gap:0">
+        <div class="sh-number">71</div><div class="sh-max">&nbsp;/100</div>
+      </div>
+      <div class="sh-badge">↑ +8 this week</div>
+      <div class="sh-segments">
+        ${Array.from({length:10},(_,i)=>`<div class="sh-seg ${i<7?'on':i===7?'half':''}"></div>`).join('')}
+      </div>
+      <div class="sh-meta">
+        <div class="sh-mi">Aptitude <strong>82%</strong></div>
+        <div class="sh-mi">Coding <strong>64%</strong></div>
+        <div class="sh-mi">HR <strong>68%</strong></div>
+      </div>
+    </div>
+
+    <!-- streak -->
+    <div class="streak-row anim-fade-up anim-delay-1">
+      <div class="sr-fire">🔥</div>
+      <div class="sr-info">
+        <div class="sr-title">14-Day Streak!</div>
+        <div class="sr-sub">Complete today's task — Day 15 reward: Free Mock Interview</div>
+        <div class="sr-days">
+          ${['M','T','W','T','F','S','S'].map((d,i)=>`<div class="sr-day ${i<4?'d':i===4?'t':'f'}">${d}</div>`).join('')}
+        </div>
+      </div>
+    </div>
+
+    <!-- quick actions -->
+    <div class="section-head anim-fade-up anim-delay-2"><div class="sh-title">Quick Actions</div></div>
+    <div class="qa-grid anim-fade-up anim-delay-2">
+      <div class="qa-item" onclick="showScreen('s-test');showToast('🎯','TCS Mock Test started!')">
+        <div class="qa-icon" style="background:var(--green-10);border-color:var(--bdr2)">🎯</div>
+        <div class="qa-label">Mock Test</div>
+      </div>
+      <div class="qa-item" onclick="openModal('modal-career')">
+        <div class="qa-icon" style="background:var(--purple-10);border-color:rgba(167,139,250,.2)">🤖</div>
+        <div class="qa-label">AI Advisor</div>
+      </div>
+      <div class="qa-item" onclick="showScreen('s-jobs')">
+        <div class="qa-icon" style="background:var(--blue-10);border-color:rgba(74,158,255,.2)">💼</div>
+        <div class="qa-label">Jobs</div>
+      </div>
+      <div class="qa-item" onclick="showScreen('s-leaderboard');showToast('🏆','Loading leaderboard...')">
+        <div class="qa-icon" style="background:var(--amber-10);border-color:rgba(245,166,35,.2)">🏆</div>
+        <div class="qa-label">Leaderboard</div>
+      </div>
+    </div>
+
+    <!-- ai bubble -->
+    <div class="ai-bubble anim-fade-up anim-delay-3">
+      <div class="ab-head"><div class="ab-av">🌱</div><div class="ab-name">GyaanBot</div></div>
+      <div class="ab-text">You're <strong>13 points away</strong> from MNC-ready status. Focus on <strong>Data Structures</strong> today — it's your weakest subject and TCS tests it heavily in Round 2.</div>
+    </div>
+
+    <!-- active courses -->
+    <div class="section-head anim-fade-up anim-delay-4"><div class="sh-title">Active Courses</div><div class="sh-link" onclick="showScreen('s-learn')">See all →</div></div>
+    <div class="course-item">
+      <div class="ci-icon" style="background:var(--green-10)">📊</div>
+      <div class="ci-body">
+        <div class="ci-name">Data Structures & Algorithms</div>
+        <div class="ci-meta">TCS Pattern • 24/35 modules</div>
+        <div class="ci-row"><div class="progress-track"><div class="progress-fill" style="width:68%"></div></div><div class="ci-pct">68%</div></div>
+      </div>
+    </div>
+    <div class="course-item">
+      <div class="ci-icon" style="background:var(--blue-10)">🧮</div>
+      <div class="ci-body">
+        <div class="ci-name">Quantitative Aptitude</div>
+        <div class="ci-meta">All Companies • 8/18 modules</div>
+        <div class="ci-row"><div class="progress-track"><div class="progress-fill progress-fill-amber" style="width:45%"></div></div><div class="ci-pct" style="color:var(--amber)">45%</div></div>
+      </div>
+    </div>
+    <div class="course-item">
+      <div class="ci-icon" style="background:var(--purple-10)">💬</div>
+      <div class="ci-body">
+        <div class="ci-name">Verbal Communication</div>
+        <div class="ci-meta">HR Rounds • 14/20 modules</div>
+        <div class="ci-row"><div class="progress-track"><div class="progress-fill" style="width:70%"></div></div><div class="ci-pct">70%</div></div>
+      </div>
+    </div>
+    <div style="height:16px"></div>
+  </div>
+</div>`; }
+
+function studentScreenLearn() { return `
+<div class="screen" id="s-learn">
+  <div class="status-bar"><span>9:41</span><div class="sb-right">▂▄▆ 🔋</div></div>
+  <div class="screen-header"><div class="screen-title">Learn 📚</div><div class="screen-sub">Your personalised curriculum</div></div>
+  <div class="scroll-area">
+    <div class="search-bar"><div class="sb-icon">🔍</div><input class="sb-input" placeholder="Search courses, topics..."></div>
+    <div class="subject-tabs">
+      <div class="stab active">All</div>
+      <div class="stab">Aptitude</div>
+      <div class="stab">Coding</div>
+      <div class="stab">HR</div>
+      <div class="stab">Company Packs</div>
+    </div>
+
+    <!-- featured banner -->
+    <div style="margin:0 20px 16px;background:linear-gradient(135deg,#0a1f12,#0f2a18);border:1px solid var(--bdr2);border-radius:var(--r20);padding:18px;position:relative;overflow:hidden">
+      <div style="position:absolute;top:-20px;right:-20px;width:100px;height:100px;border-radius:50%;background:radial-gradient(circle,rgba(0,196,110,.18),transparent 70%)"></div>
+      <div class="pill pill-green" style="margin-bottom:10px">⚡ 7-Day Sprint</div>
+      <div style="font-family:var(--font-head);font-size:17px;font-weight:700;color:var(--t1);margin-bottom:6px">TCS Placement Sprint</div>
+      <div style="font-size:12px;color:var(--t2);margin-bottom:14px">3 live sessions + unlimited mocks + human resume review</div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="font-family:var(--font-head);font-size:20px;font-weight:800;color:var(--green)">₹799</div>
+        <div style="font-size:11px;color:var(--t3);text-decoration:line-through">₹1,999</div>
+        <div onclick="showToast('🎉','Sprint enrolled! Check your email for schedule.')" style="margin-left:auto;background:var(--green);color:#000;font-family:var(--font-head);font-size:13px;font-weight:700;padding:10px 18px;border-radius:12px;cursor:pointer">Enroll Now</div>
+      </div>
+    </div>
+
+    ${[
+      {icon:'📊', color:'green',  name:'Data Structures & Algorithms', by:'TCS Pattern', pct:68, lessons:'24/35', badge:'Resume of progress'},
+      {icon:'🧮', color:'amber',  name:'Quantitative Aptitude', by:'All Companies', pct:45, lessons:'8/18', badge:''},
+      {icon:'💻', color:'blue',   name:'Core Java Programming', by:'Infosys + TCS', pct:32, lessons:'6/20', badge:'New'},
+      {icon:'💬', color:'purple', name:'Verbal Communication & GD', by:'HR Rounds', pct:70, lessons:'14/20', badge:''},
+      {icon:'🗃️', color:'teal',   name:'DBMS & SQL Fundamentals', by:'Wipro + HCL', pct:88, lessons:'17/20', badge:'Nearly done'},
+    ].map(c=>`
+    <div class="course-card-full">
+      <div class="ccf-top">
+        <div class="ccf-icon" style="background:var(--${c.color}-10);">${c.icon}</div>
+        <div class="ccf-info">
+          <div class="ccf-name">${c.name}</div>
+          <div class="ccf-by">${c.by}</div>
+        </div>
+        ${c.badge?`<span class="pill pill-${c.color==='green'?'green':c.color==='amber'?'amber':c.color==='blue'?'blue':'purple'}" style="font-size:10px;padding:3px 9px">${c.badge}</span>`:''}
+      </div>
+      <div class="ccf-bottom">
+        <div class="ccf-prog-wrap">
+          <div class="progress-track" style="height:5px">
+            <div class="progress-fill${c.color==='amber'?' progress-fill-amber':c.color==='red'?' progress-fill-red':c.color==='blue'?' progress-fill-blue':''}" style="width:${c.pct}%"></div>
+          </div>
+        </div>
+        <div class="ccf-pct" style="color:var(--${c.color==='teal'?'teal':c.color==='purple'?'purple':c.color==='amber'?'amber':c.color==='blue'?'blue':'green'})">${c.pct}%</div>
+        <div class="ccf-lessons">${c.lessons}</div>
+        <div class="ccf-continue" onclick="showToast('📚','Continuing ${c.name}...')">Resume →</div>
+      </div>
+    </div>`).join('')}
+    <div style="height:8px"></div>
+  </div>
+</div>`; }
+
+function studentScreenTest() { return `
+<div class="screen" id="s-test">
+  <div class="status-bar"><span>9:41</span><div class="sb-right">▂▄▆ 🔋</div></div>
+  <div class="screen-header"><div class="screen-title">Mock Test 🎯</div><div class="screen-sub">Company-specific preparation</div></div>
+  <div class="scroll-area">
+    <div class="company-row">
+      ${[['🔵','TCS',true],['🟠','Infosys',false],['🔴','Wipro',false],['🟡','Amazon',false],['⚫','Accenture',false]].map(([e,n,a])=>`
+      <div class="comp-chip${a?' active':''}" onclick="this.parentElement.querySelectorAll('.comp-chip').forEach(c=>c.classList.remove('active'));this.classList.add('active');showToast('🎯','Loaded ${n} question bank!')">${e} ${n}</div>`).join('')}
+    </div>
+
+    <div class="test-score-row">
+      <div class="tsr-card"><div class="tsr-num" style="color:var(--green)">12</div><div class="tsr-lbl">Correct</div></div>
+      <div class="tsr-card"><div class="tsr-num" style="color:var(--red)">3</div><div class="tsr-lbl">Wrong</div></div>
+      <div class="tsr-card"><div class="tsr-num" style="color:var(--blue)">5</div><div class="tsr-lbl">Remaining</div></div>
+      <div class="tsr-card"><div class="tsr-num" style="color:var(--amber)">83%</div><div class="tsr-lbl">Accuracy</div></div>
+    </div>
+
+    <div class="test-arena">
+      <div class="ta-top">
+        <div>
+          <div style="font-size:10px;color:var(--t3);letter-spacing:.8px;text-transform:uppercase">Time Left</div>
+          <div class="ta-timer">03:47</div>
+        </div>
+        <div class="ta-round">Round 2 of 3</div>
+        <div style="font-size:12px;color:var(--t3)">Q 16/20</div>
+      </div>
+      <div class="ta-question-box">
+        <div class="tq-meta">Verbal Reasoning · TCS Pattern</div>
+        <div class="tq-text">If ROAD is coded as URDG, what is the code for SWAN?</div>
+      </div>
+      <div class="ta-options">
+        <div class="ta-opt" onclick="selectAnswer(this,false)"><div class="to-key">A</div><div class="to-text">VZDQ</div></div>
+        <div class="ta-opt" onclick="selectAnswer(this,true)"><div class="to-key">B</div><div class="to-text">VZDP</div></div>
+        <div class="ta-opt" onclick="selectAnswer(this,false)"><div class="to-key">C</div><div class="to-text">VZEQ</div></div>
+        <div class="ta-opt" onclick="selectAnswer(this,false)"><div class="to-key">D</div><div class="to-text">VBDP</div></div>
+      </div>
+    </div>
+    <div class="test-nav">
+      <div class="tn-btn tn-prev" onclick="showToast('◀','Previous question')">← Previous</div>
+      <div class="tn-btn tn-next" onclick="showToast('▶','Next question loaded!')">Next →</div>
+    </div>
+
+    <!-- upcoming tests -->
+    <div class="section-head" style="margin-top:20px"><div class="sh-title">Upcoming Test Packs</div></div>
+    ${[
+      {n:'TCS NQT Full Mock', d:'3 rounds · 90 min', p:'₹299', c:'green'},
+      {n:'Infosys InfyTQ Prep', d:'Aptitude + Coding', p:'₹249', c:'amber'},
+      {n:'Wipro NLTH Pack', d:'4 sections · 120 min', p:'₹279', c:'blue'},
+    ].map(t=>`
+    <div class="card card-sm" style="margin:0 20px 10px;display:flex;align-items:center;gap:12px">
+      <div style="font-size:22px">📝</div>
+      <div style="flex:1"><div style="font-size:13px;font-weight:700;color:var(--t1)">${t.n}</div><div style="font-size:11px;color:var(--t3)">${t.d}</div></div>
+      <div onclick="showToast('🎯','${t.n} unlocked!')" style="background:var(--${t.c==='green'?'green':t.c==='amber'?'amber':'blue'});color:${t.c==='amber'?'#000':'#000'};font-family:var(--font-head);font-size:12px;font-weight:700;padding:8px 14px;border-radius:10px;cursor:pointer">${t.p}</div>
+    </div>`).join('')}
+    <div style="height:8px"></div>
+  </div>
+</div>`; }
+
+function studentScreenJobs() { return `
+<div class="screen" id="s-jobs">
+  <div class="status-bar"><span>9:41</span><div class="sb-right">▂▄▆ 🔋</div></div>
+  <div class="screen-header"><div class="screen-title">Job Board 💼</div><div class="screen-sub">AI-matched opportunities</div></div>
+  <div class="scroll-area">
+    <div class="search-bar"><div class="sb-icon">🔍</div><input class="sb-input" placeholder="Search roles, companies..."><div style="font-size:16px;color:var(--t3)">⚙️</div></div>
+    <div class="subject-tabs" style="margin-bottom:16px">
+      <div class="stab active">All</div>
+      <div class="stab">Fresher</div>
+      <div class="stab">Internships</div>
+      <div class="stab">Remote</div>
+      <div class="stab">Hyderabad</div>
+    </div>
+    ${[
+      {logo:'🔵', company:'TCS', role:'Software Engineer', loc:'Hyderabad', match:87, tags:['Java','SQL','B.E/B.Tech','2025 Batch'], salary:'₹3.5–7', unit:'LPA', new:true, hot:false},
+      {logo:'🟣', company:'Swiggy', role:'Data Analyst Intern', loc:'Remote', match:91, tags:['SQL','Excel','Python'], salary:'₹20K', unit:'/mo', new:false, hot:true},
+      {logo:'🟠', company:'Infosys', role:'Systems Engineer', loc:'Bengaluru', match:74, tags:['Python','DBMS','Any Branch'], salary:'₹3.6–6.5', unit:'LPA', new:false, hot:false},
+      {logo:'🔴', company:'Wipro', role:'Project Engineer', loc:'Hyderabad', match:79, tags:['C++','Java','2025 Batch'], salary:'₹3.5–5', unit:'LPA', new:true, hot:false},
+      {logo:'⚫', company:'Accenture', role:'Associate Software Eng', loc:'Multiple', match:82, tags:['Coding','Aptitude','Any Branch'], salary:'₹4.5–8', unit:'LPA', new:false, hot:false},
+    ].map(j=>`
+    <div class="job-card">
+      <div class="jc-top">
+        <div class="jc-logo">${j.logo}</div>
+        <div class="jc-title-wrap">
+          <div class="jc-title">${j.role}</div>
+          <div class="jc-company">${j.company} — ${j.loc}</div>
+        </div>
+        ${j.new?`<span class="pill pill-green" style="font-size:10px;padding:3px 8px">NEW</span>`:''}
+        ${j.hot?`<span class="pill pill-amber" style="font-size:10px;padding:3px 8px">HOT🔥</span>`:''}
+      </div>
+      <div class="jc-match"><div class="jc-match-dot"></div>${j.match}% profile match</div>
+      <div class="jc-tags">${j.tags.map(t=>`<div class="jc-tag">${t}</div>`).join('')}</div>
+      <div class="jc-bottom">
+        <div><div class="jc-salary">${j.salary}</div><div class="jc-lpa">${j.unit}</div></div>
+        <div class="jc-apply" onclick="applyJob(this,'${j.company}')">1-Click Apply</div>
+      </div>
+    </div>`).join('')}
+    <div style="height:8px"></div>
+  </div>
+</div>`; }
+
+function studentScreenLeaderboard() { return `
+<div class="screen" id="s-leaderboard">
+  <div class="status-bar"><span>9:41</span><div class="sb-right">▂▄▆ 🔋</div></div>
+  <div class="screen-header" style="text-align:center"><div class="screen-title">Leaderboard 🏆</div></div>
+  <div class="scroll-area">
+    <div class="lb-tabs">
+      <div class="lb-tab active" onclick="this.parentElement.querySelectorAll('.lb-tab').forEach(t=>t.classList.remove('active'));this.classList.add('active')">All Colleges</div>
+      <div class="lb-tab" onclick="this.parentElement.querySelectorAll('.lb-tab').forEach(t=>t.classList.remove('active'));this.classList.add('active')">My College</div>
+      <div class="lb-tab" onclick="this.parentElement.querySelectorAll('.lb-tab').forEach(t=>t.classList.remove('active'));this.classList.add('active')">My Batch</div>
+    </div>
+    <div class="podium">
+      <div class="pod-col pod-2">
+        <div class="pod-av av-blue" style="background:linear-gradient(135deg,#1a5fa8,var(--blue))">PR</div>
+        <div class="pod-name">Priya R.</div>
+        <div class="pod-coll">JNTU Hyd</div>
+        <div class="pod-score">2,840</div>
+        <div class="pod-block">2</div>
+      </div>
+      <div class="pod-col pod-1">
+        <div class="pod-av av-amber" style="background:linear-gradient(135deg,#b87012,var(--amber))">AK<div class="pod-crown">👑</div></div>
+        <div class="pod-name">Arjun K.</div>
+        <div class="pod-coll">KL University</div>
+        <div class="pod-score">3,120</div>
+        <div class="pod-block">1</div>
+      </div>
+      <div class="pod-col pod-3">
+        <div class="pod-av av-teal" style="background:linear-gradient(135deg,#0f8e82,var(--teal))">RV</div>
+        <div class="pod-name">Rahul V.</div>
+        <div class="pod-coll">VIT Vellore</div>
+        <div class="pod-score">2,710</div>
+        <div class="pod-block">3</div>
+      </div>
+    </div>
+    <div class="lb-list">
+      ${[
+        {r:4,i:'SM',c:'blue', n:'Sneha M.', col:'MVSR Engg', p:'2,590',me:false,up:true},
+        {r:5,i:'KP',c:'purple',n:'Karthik P.',col:'CBIT Hyd', p:'2,480',me:false,up:false},
+        {r:47,i:'You',c:'green',n:'You · Arjun Kumar',col:'GRIET Hyderabad',p:'1,840',me:true,up:true},
+        {r:48,i:'DS',c:'pink', n:'Divya S.', col:'Vasavi College',p:'1,820',me:false,up:false},
+        {r:49,i:'MT',c:'amber',n:'Manohar T.',col:'Osmania Univ',p:'1,790',me:false,up:false},
+      ].map(r=>`
+      <div class="lb-row${r.me?' me':''}">
+        <div class="lb-rank" style="${r.me?'color:var(--green)':''}">${r.r}</div>
+        <div class="avatar av-${r.c}" style="width:36px;height:36px;font-size:11px;font-weight:700">${r.i}</div>
+        <div class="lb-info"><div class="lb-name">${r.n}</div><div class="lb-coll">${r.col}</div></div>
+        <div class="lb-pts">${r.p}</div>
+        <div style="font-size:14px">${r.up?'⬆️':'➡️'}</div>
+      </div>`).join('')}
+    </div>
+    <div style="height:8px"></div>
+  </div>
+</div>`; }
+
+function studentScreenProfile() { return `
+<div class="screen" id="s-profile">
+  <div class="status-bar"><span>9:41</span><div class="sb-right">▂▄▆ 🔋</div></div>
+  <div class="profile-hero">
+    <div class="ph-avatar av-green">AK</div>
+    <div class="ph-name">Arjun Kumar</div>
+    <div class="ph-college">GRIET Hyderabad · B.Tech CSE · 2025</div>
+    <div class="ph-chips">
+      <span class="pill pill-green">🏆 Rank #47</span>
+      <span class="pill pill-amber">🔥 14-day streak</span>
+      <span class="pill pill-blue">📜 3 certs</span>
+    </div>
+  </div>
+  <div class="scroll-area" style="padding-top:16px">
+    <!-- linkedin -->
+    <div class="card card-sm" style="margin:0 20px 14px;background:linear-gradient(135deg,#041228,#091d3a);border-color:rgba(74,158,255,.2);display:flex;align-items:center;gap:12px">
+      <div style="font-size:26px">💼</div>
+      <div style="flex:1"><div style="font-size:13px;font-weight:700;color:var(--t1)">Share GyaanPlant Badge</div><div style="font-size:11px;color:var(--t3)">Let recruiters discover your profile</div></div>
+      <div onclick="showToast('💼','Badge shared to LinkedIn!')" style="background:var(--blue);color:#fff;font-family:var(--font-head);font-size:11px;font-weight:700;padding:7px 14px;border-radius:10px;cursor:pointer">Share →</div>
+    </div>
+
+    <!-- stats -->
+    <div class="stats-2x2">
+      <div class="stat-tile"><div class="st-num">71</div><div class="st-lbl">Readiness Score</div></div>
+      <div class="stat-tile"><div class="st-num">24</div><div class="st-lbl">Tests Completed</div></div>
+      <div class="stat-tile"><div class="st-num">142</div><div class="st-lbl">Hours Learned</div></div>
+      <div class="stat-tile"><div class="st-num" style="color:var(--amber)">14</div><div class="st-lbl">Day Streak</div></div>
+    </div>
+
+    <!-- certs -->
+    <div class="section-head"><div class="sh-title">My Certificates</div><div class="sh-link" onclick="showToast('📜','All 3 certificates shown')">View all</div></div>
+    <div class="cert-card2">
+      <div class="cc2-top">
+        <div class="cc2-badge">📊</div>
+        <div><div class="cc2-name">Data Structures & Algorithms</div><div class="cc2-issuer">GyaanPlant Industry Certification · Apr 2025</div></div>
+      </div>
+      <div class="cc2-verify">
+        <div style="font-size:14px;color:var(--green)">✅</div>
+        <div style="font-size:11px;color:var(--t3)">Blockchain Verified</div>
+        <div class="cc2-id">GP-2025-04782</div>
+      </div>
+      <div class="cc2-share">
+        <div class="cc2-li" onclick="showToast('💼','Shared to LinkedIn!')">Share LinkedIn</div>
+        <div class="cc2-dl" onclick="showToast('⬇️','Certificate downloaded!')">Download PDF</div>
+      </div>
+    </div>
+
+    <!-- achievements -->
+    <div class="section-head"><div class="sh-title">Achievements</div></div>
+    <div class="ach-grid">
+      ${[
+        {i:'🔥', n:'14-Day Streak', locked:false},
+        {i:'🎯', n:'Mock Master', locked:false},
+        {i:'📊', n:'Top Scorer', locked:false},
+        {i:'🚀', n:'First Job', locked:true},
+        {i:'👑', n:'Top 10', locked:true},
+        {i:'💯', n:'100-Day', locked:true},
+      ].map(a=>`<div class="ach-item${a.locked?' locked':''}"><span class="ai-icon">${a.i}</span><div class="ai-name">${a.n}</div></div>`).join('')}
+    </div>
+
+    <!-- mentors -->
+    <div class="section-head"><div class="sh-title">Alumni Mentors 🧑‍💼</div><div class="sh-link">Find more</div></div>
+    ${[
+      {i:'RS',c:'av-green',n:'Rahul Singh',r:'SDE-2 @ Amazon · GRIET 2022',p:'₹299/30min'},
+      {i:'PM',c:'av-blue', n:'Priya Menon', r:'Analyst @ Deloitte · GRIET 2023',p:'₹199/30min'},
+    ].map(m=>`
+    <div class="card card-sm" style="margin:0 20px 10px;display:flex;align-items:center;gap:12px">
+      <div class="avatar ${m.c}" style="width:40px;height:40px;font-size:13px;font-weight:700">${m.i}</div>
+      <div style="flex:1"><div style="font-size:13px;font-weight:700;color:var(--t1)">${m.n}</div><div style="font-size:11px;color:var(--t3)">${m.r}</div></div>
+      <div onclick="showToast('🧑‍💼','Booking slot with ${m.n}...')" style="background:var(--purple-10);border:1px solid rgba(167,139,250,.25);color:var(--purple);font-family:var(--font-head);font-size:11px;font-weight:700;padding:7px 12px;border-radius:10px;cursor:pointer">${m.p}</div>
+    </div>`).join('')}
+    <div style="height:8px"></div>
+  </div>
+</div>`; }
+
+function modalCareerAdvisor() { return `
+<div class="modal-overlay" id="modal-career" onclick="if(event.target===this)closeModal('modal-career')">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">🤖 AI Career Advisor</div>
+    <div class="ai-bubble" style="margin:0 0 14px">
+      <div class="ab-head"><div class="ab-av">🌱</div><div class="ab-name">GyaanBot</div></div>
+      <div class="ab-text">Based on your profile, you're a <strong>87% match</strong> for <strong>Data Analyst</strong> roles at MNCs. Here's your personalised 90-day roadmap:</div>
+    </div>
+    <div class="card" style="margin-bottom:14px">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+        <div style="font-size:36px">📊</div>
+        <div style="flex:1">
+          <div style="font-family:var(--font-head);font-size:17px;font-weight:700;color:var(--t1)">Data Analyst</div>
+          <div style="font-size:12px;color:var(--t3)">TCS · Infosys · Amazon · Flipkart</div>
+        </div>
+        <div style="background:var(--green-10);border:1px solid var(--bdr2);border-radius:12px;padding:8px 12px;text-align:center">
+          <div style="font-family:var(--font-head);font-size:20px;font-weight:800;color:var(--green)">87%</div>
+          <div style="font-size:9px;color:var(--t3)">match</div>
+        </div>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px">
+        <span class="pill pill-green">✓ SQL basics</span>
+        <span class="pill pill-green">✓ Excel</span>
+        <span class="pill pill-amber">⚡ Python</span>
+        <span class="pill pill-amber">⚡ Power BI</span>
+      </div>
+      ${[
+        {n:'SQL & Excel Mastery',done:true,d:'Done'},
+        {n:'Python for Data Analysis',done:false,d:'Day 1–30'},
+        {n:'Power BI Dashboards',done:false,d:'Day 31–60'},
+        {n:'Mock interviews + Apply',done:false,d:'Day 61–90'},
+      ].map((s,i)=>`
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+        <div style="width:26px;height:26px;border-radius:50%;background:${s.done?'var(--surf3)':'var(--green)'};color:${s.done?'var(--t3)':'#000'};display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0">${s.done?'✓':i+1}</div>
+        <div style="flex:1;font-size:13px;color:${s.done?'var(--t3)':'var(--t2)'}">${s.n}</div>
+        <div style="font-size:11px;color:var(--t3)">${s.d}</div>
+      </div>`).join('')}
+    </div>
+    <div class="btn-primary" onclick="closeModal('modal-career');showToast('🚀','Career roadmap activated! Check your Learn tab.')">Start My Roadmap →</div>
+  </div>
+</div>`; }
+
+/* ════════════════════════════════════
+   ██ RENDER TPO ██
+════════════════════════════════════ */
+function renderTPO(vp) {
+  vp.innerHTML = `
+  ${tpoScreenHome()}
+  ${tpoScreenStudents()}
+  ${tpoScreenDrives()}
+  ${tpoScreenReports()}
+  ${tpoScreenSettings()}
+  ${navBar('tpo')}
+  `;
+  showScreen('t-home');
+}
+
+function tpoScreenHome() { return `
+<div class="screen active" id="t-home">
+  <div class="status-bar"><span>9:41</span><div class="sb-right">▂▄▆ 🔋</div></div>
+  <div class="tpo-hero">
+    <div class="tpo-hero-bg"></div>
+    <div class="tpo-greet" style="position:relative;z-index:1">Good morning, TPO 🏫</div>
+    <div class="tpo-name">GRIET Hyderabad</div>
+    <div class="tpo-kpis">
+      <div class="tpo-kpi"><span class="tk-num">2,847</span><div class="tk-lbl">Total Students</div><span class="tk-delta">↑ 312 this month</span></div>
+      <div class="tpo-kpi"><span class="tk-num">73%</span><div class="tk-lbl">Active on LMS</div><span class="tk-delta">↑ 8% vs last month</span></div>
+      <div class="tpo-kpi"><span class="tk-num">847</span><div class="tk-lbl">Drive-Ready</div><span class="tk-delta">Score ≥ 70</span></div>
+      <div class="tpo-kpi"><span class="tk-num">12</span><div class="tk-lbl">Active Drives</div><span class="tk-delta">3 closing this week</span></div>
+    </div>
+  </div>
+  <div class="scroll-area">
+    <div class="section-head" style="margin-top:16px"><div class="sh-title">⚠️ Action Required</div></div>
+    <div class="alert-card ac-amber">
+      <div class="ac-icon">🔔</div>
+      <div class="ac-body">
+        <div class="ac-head">TCS Drive — Shortlist Due Friday</div>
+        <div class="ac-text">342 eligible. 12 haven't completed aptitude module. Send them a nudge?</div>
+        <div class="ac-action" onclick="driveAction('notify','TCS')">Send WhatsApp to 12 students →</div>
+      </div>
+    </div>
+    <div class="alert-card ac-blue">
+      <div class="ac-icon">📋</div>
+      <div class="ac-body">
+        <div class="ac-head">NAAC Q3 Report Ready</div>
+        <div class="ac-text">Q3 placement data auto-compiled. Review and download for accreditation.</div>
+        <div class="ac-action" onclick="driveAction('report','')">Download Report →</div>
+      </div>
+    </div>
+    <div class="alert-card ac-red">
+      <div class="ac-icon">⚡</div>
+      <div class="ac-body">
+        <div class="ac-head">23 Students Below Score 50</div>
+        <div class="ac-text">These students need intervention before the next drive cycle.</div>
+        <div class="ac-action" onclick="showScreen('t-students');showToast('👥','Filtered to at-risk students')">View & Assign Remedial →</div>
+      </div>
+    </div>
+
+    <div class="section-head"><div class="sh-title">Student Readiness — Top 5</div><div class="sh-link" onclick="showScreen('t-students')">See all</div></div>
+    <div class="card" style="margin:0 20px 16px">
+      ${[
+        {n:'Arjun Kumar',s:92,c:'var(--green)'},
+        {n:'Sneha Murthy',s:88,c:'var(--green)'},
+        {n:'Ravi Teja',   s:81,c:'var(--green)'},
+        {n:'Divya Sharma',s:76,c:'var(--amber)'},
+        {n:'Karthik Nair',s:69,c:'var(--red)'},
+      ].map(st=>`
+      <div class="student-bar-row">
+        <div class="sbr-name">${st.n}</div>
+        <div class="progress-track"><div class="sbr-fill progress-fill" style="width:${st.s}%;background:${st.c}"></div></div>
+        <div class="sbr-score">${st.s}</div>
+      </div>`).join('')}
+    </div>
+
+    <div class="naac-banner" onclick="driveAction('report','')">
+      <div class="nb-icon">📊</div>
+      <div class="nb-text">
+        <div class="nb-head">One-Click NAAC Report</div>
+        <div class="nb-sub">Auto-fills Q1–Q5 placement data instantly</div>
+      </div>
+      <div class="nb-arrow">→</div>
+    </div>
+
+    <!-- parent reports -->
+    <div class="section-head"><div class="sh-title">Parent Report Cards</div></div>
+    ${[
+      {n:"Arjun Kumar's Parents",sent:"Sent 2 days ago"},
+      {n:"Sneha Murthy's Parents",sent:"Sent 2 days ago"},
+    ].map(p=>`
+    <div class="card card-sm" style="margin:0 20px 10px;display:flex;align-items:center;gap:12px">
+      <div style="font-size:22px">📱</div>
+      <div style="flex:1"><div style="font-size:13px;font-weight:700;color:var(--t1)">${p.n}</div><div style="font-size:11px;color:var(--t3)">${p.sent}</div></div>
+      <div onclick="sendWhatsApp('${p.n}')" style="background:var(--green);color:#000;font-family:var(--font-head);font-size:11px;font-weight:700;padding:7px 14px;border-radius:10px;cursor:pointer">Resend</div>
+    </div>`).join('')}
+    <div style="height:8px"></div>
+  </div>
+</div>`; }
+
+function tpoScreenStudents() { return `
+<div class="screen" id="t-students">
+  <div class="status-bar"><span>9:41</span><div class="sb-right">▂▄▆ 🔋</div></div>
+  <div class="screen-header"><div class="screen-title">Students 👥</div><div class="screen-sub">2,847 total · 847 drive-ready</div></div>
+  <div class="scroll-area">
+    <div class="search-bar"><div class="sb-icon">🔍</div><input class="sb-input" placeholder="Search by name, roll number..."></div>
+    <div class="subject-tabs">
+      <div class="stab active">All</div>
+      <div class="stab">MNC Ready</div>
+      <div class="stab">At-Risk</div>
+      <div class="stab">CSE</div>
+      <div class="stab">ECE</div>
+    </div>
+    ${[
+      {i:'AK',c:'av-green',n:'Arjun Kumar',r:'CSE • 4th Year',s:92,status:'MNC Ready',sc:'green'},
+      {i:'SM',c:'av-blue', n:'Sneha Murthy',r:'IT • 4th Year',s:88,status:'MNC Ready',sc:'green'},
+      {i:'RT',c:'av-amber',n:'Ravi Teja',r:'CSE • 4th Year',s:81,status:'MNC Ready',sc:'green'},
+      {i:'DS',c:'av-purple',n:'Divya Sharma',r:'ECE • 4th Year',s:76,status:'Ready',sc:'amber'},
+      {i:'KN',c:'av-pink',n:'Karthik Nair',r:'CSE • 3rd Year',s:69,status:'Needs work',sc:'amber'},
+      {i:'PG',c:'av-teal',n:'Pooja Gupta',r:'IT • 4th Year',s:44,status:'At-Risk',sc:'red'},
+    ].map(st=>`
+    <div class="card card-sm" style="margin:0 20px 10px">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div class="avatar ${st.c}" style="width:42px;height:42px;font-size:14px;font-weight:700">${st.i}</div>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:700;color:var(--t1)">${st.n}</div>
+          <div style="font-size:11px;color:var(--t3)">${st.r}</div>
+        </div>
+        <div>
+          <div style="font-family:var(--font-head);font-size:18px;font-weight:800;color:var(--${st.sc==='green'?'green':st.sc==='amber'?'amber':'red'})">${st.s}</div>
+          <div style="font-size:9px;color:var(--t3);text-align:center">score</div>
+        </div>
+      </div>
+      <div style="margin-top:10px;display:flex;align-items:center;gap:8px">
+        <div class="progress-track" style="height:5px"><div class="progress-fill" style="width:${st.s}%;background:var(--${st.sc==='green'?'green':st.sc==='amber'?'amber':'red'})"></div></div>
+        <span class="pill pill-${st.sc==='green'?'green':st.sc==='amber'?'amber':'red'}" style="font-size:10px;padding:3px 8px">${st.status}</span>
+        <div onclick="showToast('📱','Nudge sent to ${st.n}!')" style="background:var(--surf2);border:1px solid var(--bdr);color:var(--t2);font-size:10px;font-weight:700;padding:4px 10px;border-radius:8px;cursor:pointer">Nudge</div>
+      </div>
+    </div>`).join('')}
+    <div style="height:8px"></div>
+  </div>
+</div>`; }
+
+function tpoScreenDrives() { return `
+<div class="screen" id="t-drives">
+  <div class="status-bar"><span>9:41</span><div class="sb-right">▂▄▆ 🔋</div></div>
+  <div class="screen-header"><div class="screen-title">Placement Drives 📅</div></div>
+  <div class="scroll-area">
+    <div style="padding:0 20px 14px">
+      <div class="btn-primary" onclick="showToast('➕','Create New Drive form opened!')">+ Create New Drive</div>
+    </div>
+    ${[
+      {logo:'🔵',company:'TCS',role:'Software Engineer',date:'Mar 22, 2026',eligible:342,registered:298,status:'Upcoming',sc:'amber'},
+      {logo:'🟠',company:'Infosys',role:'Systems Engineer',date:'Mar 28, 2026',eligible:285,registered:241,status:'Upcoming',sc:'blue'},
+      {logo:'🔴',company:'Wipro',role:'Project Engineer',date:'Apr 5, 2026',eligible:310,registered:187,status:'Open',sc:'green'},
+      {logo:'⚫',company:'Accenture',role:'ASE',date:'Feb 14, 2026',eligible:278,registered:278,status:'Completed',sc:'teal'},
+    ].map(d=>`
+    <div class="drive-card">
+      <div class="dc-top">
+        <div class="dc-logo">${d.logo}</div>
+        <div class="dc-info">
+          <div class="dc-company">${d.company}</div>
+          <div class="dc-role">${d.role} · ${d.date}</div>
+        </div>
+        <span class="pill pill-${d.sc}" style="font-size:10px">${d.status}</span>
+      </div>
+      <div class="dc-stats">
+        <div class="dc-stat">Eligible: <strong>${d.eligible}</strong></div>
+        <div class="dc-stat">Registered: <strong>${d.registered}</strong></div>
+        <div class="dc-stat">Pending: <strong>${d.eligible-d.registered}</strong></div>
+      </div>
+      <div style="margin-top:10px">
+        <div class="progress-track" style="height:5px;margin-bottom:4px"><div class="progress-fill" style="width:${Math.round(d.registered/d.eligible*100)}%"></div></div>
+        <div style="font-size:10px;color:var(--t3)">${Math.round(d.registered/d.eligible*100)}% registered</div>
+      </div>
+      ${d.status!=='Completed'?`
+      <div class="dc-actions">
+        <div class="dc-btn dc-btn-g" onclick="driveAction('notify','${d.company}')">📱 Notify Students</div>
+        <div class="dc-btn dc-btn-s" onclick="driveAction('shortlist','${d.company}')">📋 Shortlist</div>
+      </div>`:`
+      <div class="dc-actions">
+        <div class="dc-btn dc-btn-s" style="width:100%" onclick="showToast('📊','${d.company} drive report exported!')">View Outcome Report</div>
+      </div>`}
+    </div>`).join('')}
+    <div style="height:8px"></div>
+  </div>
+</div>`; }
+
+function tpoScreenReports() { return `
+<div class="screen" id="t-reports">
+  <div class="status-bar"><span>9:41</span><div class="sb-right">▂▄▆ 🔋</div></div>
+  <div class="screen-header"><div class="screen-title">Reports 📊</div></div>
+  <div class="scroll-area">
+    <div class="naac-banner" onclick="driveAction('report','')">
+      <div class="nb-icon">📋</div>
+      <div class="nb-text"><div class="nb-head">Generate NAAC Report</div><div class="nb-sub">Criterion 5.2 — Placement & Higher Studies</div></div>
+      <div class="nb-arrow">↓</div>
+    </div>
+    ${[
+      {title:'Monthly Placement Summary',date:'Feb 2026',type:'PDF',icon:'📄'},
+      {title:'Student Skill Gap Analysis',date:'Q1 2026',type:'Excel',icon:'📊'},
+      {title:'Drive Outcome Report — TCS',date:'Jan 2026',type:'PDF',icon:'📋'},
+      {title:'Department-wise Readiness',date:'Feb 2026',type:'PDF',icon:'📈'},
+      {title:'NAAC Q2 Placement Data',date:'Oct 2025',type:'PDF',icon:'🏫'},
+    ].map(r=>`
+    <div class="card card-sm" style="margin:0 20px 10px;display:flex;align-items:center;gap:12px">
+      <div style="font-size:22px">${r.icon}</div>
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:700;color:var(--t1)">${r.title}</div>
+        <div style="font-size:11px;color:var(--t3)">${r.date} · ${r.type}</div>
+      </div>
+      <div onclick="showToast('⬇️','${r.title} downloaded!')" style="background:var(--surf2);border:1px solid var(--bdr);color:var(--t2);font-size:11px;font-weight:700;padding:7px 14px;border-radius:10px;cursor:pointer">↓</div>
+    </div>`).join('')}
+    <div style="height:8px"></div>
+  </div>
+</div>`; }
+
+function tpoScreenSettings() { return `
+<div class="screen" id="t-settings">
+  <div class="status-bar"><span>9:41</span><div class="sb-right">▂▄▆ 🔋</div></div>
+  <div class="screen-header"><div class="screen-title">Settings ⚙️</div></div>
+  <div class="scroll-area">
+    <div class="card" style="margin:0 20px 16px">
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px">
+        <div class="avatar av-blue" style="width:56px;height:56px;font-size:18px;font-weight:800">RP</div>
+        <div>
+          <div style="font-family:var(--font-head);font-size:17px;font-weight:700;color:var(--t1)">Ramesh Prasad</div>
+          <div style="font-size:12px;color:var(--t3)">TPO · GRIET Hyderabad</div>
+          <span class="pill pill-blue" style="margin-top:6px;font-size:10px">Verified TPO</span>
+        </div>
+      </div>
+    </div>
+    ${[
+      {icon:'🔔',label:'Notification Preferences',sub:'WhatsApp, email alerts'},
+      {icon:'📱',label:'Parent Report Schedule',sub:'Monthly · Auto-send on 1st'},
+      {icon:'🏫',label:'College Profile',sub:'GRIET · A+ Grade · 2,847 students'},
+      {icon:'🔗',label:'API Integrations',sub:'Naukri, LinkedIn Jobs connected'},
+      {icon:'🔒',label:'Security & Privacy',sub:'2FA enabled'},
+    ].map(s=>`
+    <div class="card card-sm" style="margin:0 20px 10px;display:flex;align-items:center;gap:12px;cursor:pointer" onclick="showToast('⚙️','${s.label} settings opened')">
+      <div style="font-size:22px">${s.icon}</div>
+      <div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--t1)">${s.label}</div><div style="font-size:11px;color:var(--t3)">${s.sub}</div></div>
+      <div style="color:var(--t3)">›</div>
+    </div>`).join('')}
+    <div style="height:8px"></div>
+  </div>
+</div>`; }
+
+/* ════════════════════════════════════
+   ██ RENDER HOD ██
+════════════════════════════════════ */
+function renderHOD(vp) {
+  vp.innerHTML = `
+  ${hodScreenHome()}
+  ${hodScreenDept()}
+  ${hodScreenAnalytics()}
+  ${hodScreenNAAC()}
+  ${hodScreenSettings()}
+  ${navBar('hod')}`;
+  showScreen('h-home');
+}
+
+function hodScreenHome() { return `
+<div class="screen active" id="h-home">
+  <div class="status-bar"><span>9:41</span><div class="sb-right">▂▄▆ 🔋</div></div>
+  <div class="hod-hero">
+    <div class="hod-hero-bg"></div>
+    <div style="position:relative;z-index:1">
+      <div style="font-size:12px;color:var(--t3)">Principal Dashboard</div>
+      <div style="font-family:var(--font-head);font-size:22px;font-weight:800;color:var(--t1);margin-bottom:16px">GRIET Hyderabad 🏛️</div>
+    </div>
+    <div class="hod-kpis">
+      <div class="hod-kpi"><span class="hk-num">2,847</span><div class="hk-lbl">Total Students</div></div>
+      <div class="hod-kpi"><span class="hk-num">6</span><div class="hk-lbl">Departments</div></div>
+      <div class="hod-kpi" style="background:rgba(0,196,110,.08);border-color:rgba(0,196,110,.15)"><span class="hk-num" style="color:var(--green)">73%</span><div class="hk-lbl">LMS Adoption</div></div>
+      <div class="hod-kpi" style="background:var(--amber-10);border-color:rgba(245,166,35,.2)"><span class="hk-num" style="color:var(--amber)">A+</span><div class="hk-lbl">NAAC Grade</div></div>
+    </div>
+  </div>
+  <div class="scroll-area">
+    <div class="section-head" style="margin-top:16px"><div class="sh-title">Dept-wise Skill Readiness</div><div class="sh-link" onclick="showScreen('h-dept')">Detail</div></div>
+    <div class="dept-bar-card">
+      ${[
+        {n:'CSE',p:78,c:'var(--green)'},
+        {n:'IT', p:72,c:'var(--green)'},
+        {n:'ECE',p:61,c:'var(--amber)'},
+        {n:'EEE',p:54,c:'var(--amber)'},
+        {n:'Mech',p:42,c:'var(--red)'},
+        {n:'Civil',p:38,c:'var(--red)'},
+      ].map(d=>`
+      <div class="dept-row">
+        <div class="dept-name">${d.n}</div>
+        <div class="dept-track"><div class="dept-fill" style="width:${d.p}%;background:${d.c}"></div></div>
+        <div class="dept-pct" style="color:${d.c}">${d.p}%</div>
+      </div>`).join('')}
+    </div>
+
+    <div class="section-head"><div class="sh-title">Syllabus Mapping Status</div></div>
+    ${[
+      {dept:'CSE', mapped:8, total:10, pct:80},
+      {dept:'IT',  mapped:6, total:8,  pct:75},
+      {dept:'ECE', mapped:3, total:8,  pct:38},
+    ].map(m=>`
+    <div class="card card-sm" style="margin:0 20px 10px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="font-size:20px">📐</div>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:700;color:var(--t1)">${m.dept} — GyaanPlant Courses</div>
+          <div style="font-size:11px;color:var(--t3)">${m.mapped}/${m.total} courses mapped to electives</div>
+          <div style="margin-top:6px"><div class="progress-track" style="height:4px"><div class="progress-fill" style="width:${m.pct}%"></div></div></div>
+        </div>
+        <div onclick="showToast('📐','Opening ${m.dept} syllabus mapper...')" style="background:var(--blue-10);border:1px solid rgba(74,158,255,.2);color:var(--blue);font-size:11px;font-weight:700;padding:7px 12px;border-radius:10px;cursor:pointer">Map</div>
+      </div>
+    </div>`).join('')}
+    <div style="height:8px"></div>
+  </div>
+</div>`; }
+
+function hodScreenDept() { return `
+<div class="screen" id="h-dept">
+  <div class="status-bar"><span>9:41</span><div class="sb-right">▂▄▆ 🔋</div></div>
+  <div class="screen-header"><div class="screen-title">Departments 📐</div></div>
+  <div class="scroll-area">
+    ${[
+      {icon:'💻',n:'Computer Science Engineering',head:'Dr. K. Ramaiah',students:680,ready:78,trend:'↑'},
+      {icon:'🌐',n:'Information Technology',head:'Dr. S. Lakshmi',students:520,ready:72,trend:'↑'},
+      {icon:'📡',n:'Electronics & Communication',head:'Dr. M. Chandra',students:480,ready:61,trend:'→'},
+      {icon:'⚡',n:'Electrical Engineering',head:'Dr. P. Rao',students:360,ready:54,trend:'↓'},
+      {icon:'⚙️',n:'Mechanical Engineering',head:'Dr. V. Kumar',students:440,ready:42,trend:'↓'},
+      {icon:'🏗️',n:'Civil Engineering',head:'Dr. A. Singh',students:367,ready:38,trend:'↓'},
+    ].map(d=>`
+    <div class="card" style="margin:0 20px 12px;cursor:pointer" onclick="showToast('📐','${d.n} detailed view')">
+      <div style="display:flex;gap:12px;margin-bottom:12px">
+        <div style="font-size:28px">${d.icon}</div>
+        <div style="flex:1">
+          <div style="font-family:var(--font-head);font-size:13px;font-weight:700;color:var(--t1)">${d.n}</div>
+          <div style="font-size:11px;color:var(--t3)">HOD: ${d.head}</div>
+        </div>
+        <div style="font-size:20px">${d.trend==='↑'?'📈':d.trend==='↓'?'📉':'📊'}</div>
+      </div>
+      <div style="display:flex;gap:16px;margin-bottom:10px">
+        <div style="font-size:11px;color:var(--t3)">Students: <strong style="color:var(--t1)">${d.students}</strong></div>
+        <div style="font-size:11px;color:var(--t3)">Ready: <strong style="color:${d.ready>=70?'var(--green)':d.ready>=50?'var(--amber)':'var(--red)'}">${d.ready}%</strong></div>
+      </div>
+      <div class="progress-track" style="height:6px"><div class="progress-fill" style="width:${d.ready}%;background:${d.ready>=70?'var(--green)':d.ready>=50?'var(--amber)':'var(--red)'}"></div></div>
+    </div>`).join('')}
+    <div style="height:8px"></div>
+  </div>
+</div>`; }
+
+function hodScreenAnalytics() { return `
+<div class="screen" id="h-analytics">
+  <div class="status-bar"><span>9:41</span><div class="sb-right">▂▄▆ 🔋</div></div>
+  <div class="screen-header"><div class="screen-title">Analytics 📈</div></div>
+  <div class="scroll-area">
+    <div class="analytics-card">
+      <div style="font-family:var(--font-head);font-size:14px;font-weight:700;color:var(--t1)">Monthly Active Students</div>
+      <div style="font-size:11px;color:var(--t3);margin-top:2px">Oct 2025 — Mar 2026</div>
+      <div class="mini-bar-chart">
+        ${[
+          {m:'Oct',v:42},{m:'Nov',v:58},{m:'Dec',v:65},{m:'Jan',v:71},{m:'Feb',v:78},{m:'Mar',v:88}
+        ].map((b,i)=>`
+        <div class="mbc-col">
+          <div class="mbc-bar" style="height:${b.v*0.8}px;background:${i===5?'var(--green)':'var(--surf3)'}"></div>
+          <div class="mbc-label">${b.m}</div>
+        </div>`).join('')}
+      </div>
+    </div>
+    <div class="analytics-card">
+      <div style="font-family:var(--font-head);font-size:14px;font-weight:700;color:var(--t1)">Placement Rate by Year</div>
+      <div class="mini-bar-chart" style="margin-top:12px">
+        ${[
+          {y:'2022',p:68},{y:'2023',p:74},{y:'2024',p:81},{y:'2025',p:87}
+        ].map((b,i)=>`
+        <div class="mbc-col">
+          <div class="mbc-bar" style="height:${b.p*0.8}px;background:${i===3?'var(--green)':'var(--surf3)'}"></div>
+          <div class="mbc-label" style="font-size:10px">${b.y}</div>
+          <div style="font-size:10px;font-weight:700;color:var(--green)">${b.p}%</div>
+        </div>`).join('')}
+      </div>
+    </div>
+    ${[
+      {icon:'👥',title:'Students Active This Month',value:'2,076',delta:'↑ 8%',c:'green'},
+      {icon:'⏱️',title:'Avg Hours / Student',value:'12.4 hrs',delta:'↑ 2.1 hrs',c:'blue'},
+      {icon:'🎯',title:'Avg Readiness Score',value:'67 / 100',delta:'↑ 4 pts',c:'amber'},
+      {icon:'📜',title:'Certificates Issued',value:'1,240',delta:'↑ 320 this month',c:'purple'},
+    ].map(k=>`
+    <div class="card card-sm" style="margin:0 20px 10px;display:flex;align-items:center;gap:12px">
+      <div style="font-size:24px">${k.icon}</div>
+      <div style="flex:1"><div style="font-size:12px;color:var(--t3)">${k.title}</div><div style="font-family:var(--font-head);font-size:18px;font-weight:800;color:var(--t1)">${k.value}</div></div>
+      <span class="pill pill-${k.c==='green'?'green':k.c==='blue'?'blue':k.c==='amber'?'amber':'purple'}">${k.delta}</span>
+    </div>`).join('')}
+    <div style="height:8px"></div>
+  </div>
+</div>`; }
+
+function hodScreenNAAC() { return `
+<div class="screen" id="h-naac">
+  <div class="status-bar"><span>9:41</span><div class="sb-right">▂▄▆ 🔋</div></div>
+  <div class="screen-header"><div class="screen-title">NAAC Accreditation 📋</div></div>
+  <div class="scroll-area">
+    <div class="card" style="margin:0 20px 14px;background:linear-gradient(135deg,#091e0f,#0d2a15);border-color:rgba(0,196,110,.3)">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+        <div style="font-size:36px">🏆</div>
+        <div>
+          <div style="font-family:var(--font-head);font-size:20px;font-weight:800;color:var(--green)">A+ Grade</div>
+          <div style="font-size:12px;color:var(--t3)">NAAC Accreditation · Valid until 2028</div>
+        </div>
+      </div>
+      <div class="btn-primary" onclick="driveAction('report','')">Generate Full NAAC Report →</div>
+    </div>
+    ${[
+      {c:'Criterion 1',n:'Curricular Aspects',s:3.4,max:4,comp:85},
+      {c:'Criterion 2',n:'Teaching & Learning',s:3.6,max:4,comp:90},
+      {c:'Criterion 3',n:'Research & Innovation',s:3.2,max:4,comp:80},
+      {c:'Criterion 4',n:'Infrastructure',s:3.5,max:4,comp:88},
+      {c:'Criterion 5',n:'Student Support (Placement)',s:3.8,max:4,comp:95},
+      {c:'Criterion 6',n:'Governance',s:3.3,max:4,comp:83},
+    ].map(cr=>`
+    <div class="card card-sm" style="margin:0 20px 10px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+        <div style="font-size:11px;color:var(--t3);font-weight:600">${cr.c}</div>
+        <div style="flex:1;font-size:13px;font-weight:700;color:var(--t1)">${cr.n}</div>
+        <div style="font-family:var(--font-head);font-size:16px;font-weight:800;color:var(--green)">${cr.s}/${cr.max}</div>
+      </div>
+      <div class="progress-track" style="height:5px"><div class="progress-fill" style="width:${cr.comp}%"></div></div>
+    </div>`).join('')}
+    <div style="height:8px"></div>
+  </div>
+</div>`; }
+
+function hodScreenSettings() { return `
+<div class="screen" id="h-settings">
+  <div class="status-bar"><span>9:41</span><div class="sb-right">▂▄▆ 🔋</div></div>
+  <div class="screen-header"><div class="screen-title">Settings ⚙️</div></div>
+  <div class="scroll-area">
+    <div class="card" style="margin:0 20px 16px;text-align:center">
+      <div class="avatar av-purple" style="width:68px;height:68px;font-size:22px;font-weight:800;margin:0 auto 12px">VP</div>
+      <div style="font-family:var(--font-head);font-size:17px;font-weight:700">Dr. V. Prakash</div>
+      <div style="font-size:12px;color:var(--t3);margin-top:4px">Principal · GRIET Hyderabad</div>
+      <span class="pill pill-purple" style="margin-top:10px">Admin Access</span>
+    </div>
+    ${['College Profile & Branding','Syllabus Mapping Config','Report Templates','Staff Access Management','GyaanPlant MOU Details'].map(s=>`
+    <div class="card card-sm" style="margin:0 20px 10px;display:flex;align-items:center;gap:12px;cursor:pointer" onclick="showToast('⚙️','${s} settings opened')">
+      <div style="font-size:20px">⚙️</div>
+      <div style="flex:1;font-size:13px;font-weight:600;color:var(--t1)">${s}</div>
+      <div style="color:var(--t3)">›</div>
+    </div>`).join('')}
+    <div style="height:8px"></div>
+  </div>
+</div>`; }
+
+/* ════════════════════════════════════
+   ██ RENDER ADMIN ██
+════════════════════════════════════ */
+function renderAdmin(vp) {
+  vp.innerHTML = `
+  ${adminScreenHome()}
+  ${adminScreenColleges()}
+  ${adminScreenRevenue()}
+  ${adminScreenTeam()}
+  ${adminScreenSettings()}
+  ${navBar('admin')}`;
+  showScreen('a-home');
+}
+
+function adminScreenHome() { return `
+<div class="screen active" id="a-home">
+  <div class="status-bar"><span>9:41</span><div class="sb-right">▂▄▆ 🔋</div></div>
+  <div class="admin-hero">
+    <div class="admin-hero-bg"></div>
+    <div style="position:relative;z-index:1">
+      <div style="font-size:12px;color:var(--t3)">CEO Dashboard ⚡</div>
+      <div style="font-family:var(--font-head);font-size:22px;font-weight:800;color:var(--t1);margin-bottom:4px">GyaanPlant.in</div>
+      <div style="font-size:12px;color:var(--t3)">March 13, 2026 · <span class="live-dot"></span>Live</div>
+    </div>
+    <div class="admin-kpis">
+      <div class="ak ak-green"><span class="ak-num">1,02,840</span><div class="ak-lbl">Active Students</div><span class="ak-delta">↑ 12,400 this month</span></div>
+      <div class="ak ak-purple"><span class="ak-num">68</span><div class="ak-lbl">College MOUs</div><span class="ak-delta">↑ 7 this month</span></div>
+      <div class="ak ak-amber"><span class="ak-num">₹38.2L</span><div class="ak-lbl">Revenue YTD</div><span class="ak-delta">↑ 22% vs target</span></div>
+      <div class="ak ak-blue"><span class="ak-num">94.7%</span><div class="ak-lbl">Platform Uptime</div><span class="ak-delta">Last 30 days</span></div>
+    </div>
+  </div>
+  <div class="scroll-area">
+    <div class="section-head" style="margin-top:16px"><div class="sh-title">⚡ CEO Alerts</div></div>
+    <div class="alert-card ac-green">
+      <div class="ac-icon">🎉</div>
+      <div class="ac-body">
+        <div class="ac-head">1 Lakh Students Milestone!</div>
+        <div class="ac-text">GyaanPlant crossed 1,00,000 active student users on March 11. Target achieved 18 days early.</div>
+        <div class="ac-action" onclick="showToast('🎉','Milestone report downloaded!')">Download Milestone Report →</div>
+      </div>
+    </div>
+    <div class="alert-card ac-amber">
+      <div class="ac-icon">📍</div>
+      <div class="ac-body">
+        <div class="ac-head">NASSCOM FutureSkills Application Due</div>
+        <div class="ac-text">Application deadline is March 31. Complete the partnership form to unlock government-backed certifications.</div>
+        <div class="ac-action" onclick="showToast('📋','Opening NASSCOM application...')">Apply Now →</div>
+      </div>
+    </div>
+    <div class="alert-card ac-blue">
+      <div class="ac-icon">🏛️</div>
+      <div class="ac-body">
+        <div class="ac-head">JNTU Anchor Deal — In Progress</div>
+        <div class="ac-text">Meeting scheduled with VC for March 18. 12,000+ students onboarding if signed.</div>
+        <div class="ac-action" onclick="showToast('📅','Meeting prep materials opened!')">Prepare Meeting →</div>
+      </div>
+    </div>
+
+    <div class="section-head"><div class="sh-title">MOU Pipeline</div><div class="sh-link" onclick="showScreen('a-colleges')">All colleges</div></div>
+    <div class="pipeline-card">
+      <div style="font-size:12px;color:var(--t3)">Current week · 5 deals in motion</div>
+      <div class="pipeline-stages">
+        ${[
+          {s:'Prospecting',n:42,c:'var(--surf3)',line:'var(--surf3)'},
+          {s:'Demo Done',n:18,c:'var(--blue)',line:'var(--blue)'},
+          {s:'MOU Sent',n:8,c:'var(--amber)',line:'var(--amber)'},
+          {s:'Signed',n:3,c:'var(--green)',line:''},
+        ].map((p,i)=>`
+        <div class="ps-col">
+          <div class="ps-circle" style="background:rgba(${p.c.includes('green')?'0,196,110':p.c.includes('blue')?'74,158,255':p.c.includes('amber')?'245,166,35':'255,255,255'},.15);color:var(--t1)">
+            <span class="ps-count" style="color:${p.c}">${p.n}</span>
+            ${i<3?`<div class="ps-line" style="background:${p.line};opacity:.3"></div>`:''}
+          </div>
+          <div class="ps-label">${p.s}</div>
+        </div>`).join('')}
+      </div>
+    </div>
+
+    <div class="section-head"><div class="sh-title">Revenue — This Month</div><div class="sh-link" onclick="showScreen('a-revenue')">Full view</div></div>
+    <div class="revenue-chart">
+      <div style="display:flex;justify-content:space-between;align-items:flex-end">
+        <div style="font-size:12px;color:var(--t3)">September 2026 target: ₹20L</div>
+        <div style="font-family:var(--font-head);font-size:18px;font-weight:800;color:var(--green)">₹8.4L</div>
+      </div>
+      <div class="rev-bars">
+        ${[
+          {m:'Oct',v:50,cur:false},{m:'Nov',v:150,cur:false},{m:'Dec',v:300,cur:false},
+          {m:'Jan',v:500,cur:false},{m:'Feb',v:800,cur:false},{m:'Mar',v:840,cur:true}
+        ].map(b=>`
+        <div class="rev-col">
+          <div class="rev-val" style="${!b.cur?'color:var(--t3)':''}">₹${b.v}K</div>
+          <div class="rev-bar ${b.cur?'current':'past'}" style="height:${b.v/10}px"></div>
+          <div class="rev-lbl">${b.m}</div>
+        </div>`).join('')}
+      </div>
+    </div>
+    <div style="height:8px"></div>
+  </div>
+</div>`; }
+
+function adminScreenColleges() { return `
+<div class="screen" id="a-colleges">
+  <div class="status-bar"><span>9:41</span><div class="sb-right">▂▄▆ 🔋</div></div>
+  <div class="screen-header"><div class="screen-title">College MOUs 🏫</div><div class="screen-sub">68 active · 7 in pipeline</div></div>
+  <div class="scroll-area">
+    <div style="padding:0 20px 14px">
+      <div class="btn-primary" onclick="showToast('➕','New college MOU form opened!')">+ Add New College</div>
+    </div>
+    <div class="search-bar" style="margin-top:0"><div class="sb-icon">🔍</div><input class="sb-input" placeholder="Search colleges..."></div>
+    ${[
+      {n:'GRIET Hyderabad',loc:'Hyderabad, TS',tier:'A',students:2847,status:'Active',monthly:'₹8,340'},
+      {n:'JNTU Hyderabad',loc:'Hyderabad, TS',tier:'A',students:0,status:'Pending',monthly:'—'},
+      {n:'KL University',loc:'Vijayawada, AP',tier:'A',students:3210,status:'Active',monthly:'₹9,120'},
+      {n:'MVSR Engineering',loc:'Hyderabad, TS',tier:'B',students:1240,status:'Active',monthly:'₹0'},
+      {n:'Vasavi College',loc:'Hyderabad, TS',tier:'B',students:980,status:'Active',monthly:'₹0'},
+      {n:'CBIT Hyderabad',loc:'Hyderabad, TS',tier:'B',students:1580,status:'Active',monthly:'₹0'},
+    ].map(m=>`
+    <div class="mou-card">
+      <div class="mc-top">
+        <div class="mc-ava">🏫</div>
+        <div class="mc-info">
+          <div class="mc-name">${m.n}</div>
+          <div class="mc-loc">${m.loc}</div>
+        </div>
+      </div>
+      <div class="mc-bottom">
+        <span class="mc-tier mc-tier-${m.tier.toLowerCase()}">${m.tier === 'A' ? 'Tier A' : m.tier === 'B' ? 'Tier B' : 'Tier C'}</span>
+        <div class="mc-students">${m.students>0?m.students.toLocaleString()+' students':'—'}</div>
+        <div class="mc-status ${m.status==='Active'?'active':'pending'}">${m.status}</div>
+        ${m.monthly!=='—'&&m.monthly!=='₹0'?`<div style="font-family:var(--font-head);font-size:12px;font-weight:700;color:var(--green)">${m.monthly}/mo</div>`:''}
+      </div>
+    </div>`).join('')}
+    <div style="height:8px"></div>
+  </div>
+</div>`; }
+
+function adminScreenRevenue() { return `
+<div class="screen" id="a-revenue">
+  <div class="status-bar"><span>9:41</span><div class="sb-right">▂▄▆ 🔋</div></div>
+  <div class="screen-header"><div class="screen-title">Revenue 💰</div></div>
+  <div class="scroll-area">
+    <div class="stats-2x2">
+      <div class="stat-tile" style="background:var(--green-10);border-color:var(--bdr2)"><div class="st-num">₹38.2L</div><div class="st-lbl">Revenue YTD</div></div>
+      <div class="stat-tile" style="background:var(--amber-10);border-color:rgba(245,166,35,.2)"><div class="st-num" style="color:var(--amber)">₹8.4L</div><div class="st-lbl">This Month</div></div>
+      <div class="stat-tile"><div class="st-num" style="color:var(--blue)">₹11.8L</div><div class="st-lbl">B2B SaaS</div></div>
+      <div class="stat-tile"><div class="st-num" style="color:var(--purple)">₹26.4L</div><div class="st-lbl">B2C Certs</div></div>
+    </div>
+    <div class="revenue-chart" style="margin:0 20px 14px">
+      <div style="font-family:var(--font-head);font-size:14px;font-weight:700;color:var(--t1);margin-bottom:4px">Monthly Revenue Ramp</div>
+      <div style="font-size:11px;color:var(--t3);margin-bottom:4px">Target: ₹20L by Sep 2026</div>
+      <div class="rev-bars">
+        ${[
+          {m:'Oct',v:50,cur:false},{m:'Nov',v:150,cur:false},{m:'Dec',v:300,cur:false},
+          {m:'Jan',v:500,cur:false},{m:'Feb',v:800,cur:false},{m:'Mar',v:840,cur:true},
+          {m:'Apr',v:1200,cur:false},{m:'May',v:0,cur:false}
+        ].map(b=>`
+        <div class="rev-col">
+          ${b.v>0?`<div class="rev-val" style="${!b.cur?'color:var(--t3)':''}">₹${b.v}K</div>`:'<div class="rev-val" style="color:var(--surf3)">—</div>'}
+          <div class="rev-bar ${b.cur?'current':'past'}" style="height:${b.v>0?b.v/15:2}px;${b.v===0?'background:var(--surf2)':''}"></div>
+          <div class="rev-lbl">${b.m}</div>
+        </div>`).join('')}
+      </div>
+    </div>
+    <div class="section-head"><div class="sh-title">Revenue by Stream</div></div>
+    ${[
+      {n:'Institutional SaaS (B2B)',v:'₹11.8L',target:'₹20L',pct:59,c:'blue'},
+      {n:'Premium Certifications',v:'₹18.4L',target:'₹18L',pct:100,c:'green'},
+      {n:'Specialized Bootcamps',v:'₹8.0L',target:'₹20L',pct:40,c:'purple'},
+    ].map(s=>`
+    <div class="card card-sm" style="margin:0 20px 10px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+        <div style="font-size:13px;font-weight:700;color:var(--t1)">${s.n}</div>
+        <div style="font-family:var(--font-head);font-size:14px;font-weight:700;color:var(--${s.c==='green'?'green':s.c==='blue'?'blue':'purple'})">${s.v}</div>
+      </div>
+      <div class="progress-track" style="height:6px;margin-bottom:6px"><div class="progress-fill" style="width:${Math.min(s.pct,100)}%;background:var(--${s.c==='green'?'green':s.c==='blue'?'blue':'purple'})"></div></div>
+      <div style="font-size:10px;color:var(--t3)">${s.pct>=100?'✅ Target hit!':s.pct+'% of '+s.target+' target'}</div>
+    </div>`).join('')}
+    <div style="height:8px"></div>
+  </div>
+</div>`; }
+
+function adminScreenTeam() { return `
+<div class="screen" id="a-team">
+  <div class="status-bar"><span>9:41</span><div class="sb-right">▂▄▆ 🔋</div></div>
+  <div class="screen-header"><div class="screen-title">Team KPIs 👥</div></div>
+  <div class="scroll-area">
+    ${[
+      {i:'SB',c:'av-blue',n:'Shubhangi',r:'CTO · Platform',kpis:['99.8% uptime ✅','2 features shipped ✅','P0 bugs: 0 ✅'],color:'green'},
+      {i:'VS',c:'av-amber',n:'Vaishnavi',r:'Lead Generation',kpis:['182 leads/day ✅','91% accuracy ✅','1,820 this week ✅'],color:'green'},
+      {i:'SA',c:'av-purple',n:'Saundarya',r:'Sales · Demos',kpis:['2.8 demos/day ✅','Follow-up <1hr ✅','3 MOUs this week ✅'],color:'green'},
+      {i:'AM',c:'av-pink',n:'Arjun (CEO)',r:'Strategy & MOUs',kpis:['5 MOUs signed ✅','JNTU meeting set ✅','NASSCOM pending ⏳'],color:'amber'},
+    ].map(m=>`
+    <div class="card" style="margin:0 20px 12px">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+        <div class="avatar ${m.c}" style="width:46px;height:46px;font-size:15px;font-weight:800">${m.i}</div>
+        <div>
+          <div style="font-family:var(--font-head);font-size:15px;font-weight:700;color:var(--t1)">${m.n}</div>
+          <div style="font-size:11px;color:var(--t3)">${m.r}</div>
+        </div>
+        <span class="pill pill-${m.color==='green'?'green':'amber'}" style="margin-left:auto;font-size:10px">${m.color==='green'?'On Track':'Review'}</span>
+      </div>
+      ${m.kpis.map(k=>`<div style="display:flex;align-items:center;gap:8px;margin-bottom:7px;font-size:12px;color:var(--t2)">${k}</div>`).join('')}
+    </div>`).join('')}
+    <div style="height:8px"></div>
+  </div>
+</div>`; }
+
+function adminScreenSettings() { return `
+<div class="screen" id="a-settings">
+  <div class="status-bar"><span>9:41</span><div class="sb-right">▂▄▆ 🔋</div></div>
+  <div class="screen-header"><div class="screen-title">Settings ⚙️</div></div>
+  <div class="scroll-area">
+    <div class="card" style="margin:0 20px 16px;text-align:center;background:linear-gradient(135deg,#100816,#0c0a14)">
+      <div class="avatar av-amber" style="width:68px;height:68px;font-size:22px;font-weight:800;margin:0 auto 12px">AK</div>
+      <div style="font-family:var(--font-head);font-size:17px;font-weight:700">Arjun Kumar</div>
+      <div style="font-size:12px;color:var(--t3);margin-top:4px">CEO & Co-Founder · GyaanPlant.in</div>
+      <span class="pill pill-amber" style="margin-top:10px">Super Admin</span>
+    </div>
+    ${['Platform Configuration','Subscription Plans','API Keys & Webhooks','Team Permissions','Billing & Invoices','White-Label Settings'].map(s=>`
+    <div class="card card-sm" style="margin:0 20px 10px;display:flex;align-items:center;gap:12px;cursor:pointer" onclick="showToast('⚙️','${s} opened')">
+      <div style="font-size:20px">⚡</div>
+      <div style="flex:1;font-size:13px;font-weight:600;color:var(--t1)">${s}</div>
+      <div style="color:var(--t3)">›</div>
+    </div>`).join('')}
+    <div style="height:8px"></div>
+  </div>
+</div>`; }
+
+/* ════════════════════════════════════
+   ██ RENDER MENTOR ██
+════════════════════════════════════ */
+function renderMentor(vp) {
+  vp.innerHTML = `
+  ${mentorHome()}
+  ${mentorBookings()}
+  ${mentorSessions()}
+  ${mentorEarnings()}
+  ${mentorProfile()}
+  ${navBar('mentor')}`;
+  showScreen('m-home');
+}
+
+function mentorHome() { return `
+<div class="screen active" id="m-home">
+  <div class="status-bar"><span>9:41</span><div class="sb-right">▂▄▆ 🔋</div></div>
+  <div class="mentor-hero">
+    <div class="mentor-hero-bg"></div>
+    <div style="position:relative;z-index:1;display:flex;align-items:flex-start;justify-content:space-between">
+      <div>
+        <div style="font-size:12px;color:var(--t3)">Mentor Dashboard</div>
+        <div style="font-family:var(--font-head);font-size:22px;font-weight:800;color:var(--t1)">Rahul <span style="color:var(--purple)">Singh</span></div>
+        <div style="font-size:12px;color:var(--t3);margin-top:3px">SDE-2 @ Amazon · GRIET 2022</div>
+      </div>
+      <div class="avatar av-green" style="width:44px;height:44px;font-size:15px;font-weight:800">RS</div>
+    </div>
+    <div class="mentor-kpis">
+      <div class="mk mk-purple"><div class="mk-num">24</div><div class="mk-lbl">Sessions Done</div></div>
+      <div class="mk mk-amber"><div class="mk-num">₹9,600</div><div class="mk-lbl">Earned (Mar)</div></div>
+      <div class="mk mk-green"><div class="mk-num">4.9⭐</div><div class="mk-lbl">Rating</div></div>
+    </div>
+  </div>
+  <div class="scroll-area">
+    <div class="section-head" style="margin-top:16px"><div class="sh-title">Today's Sessions</div><div class="sh-link" onclick="showScreen('m-bookings')">All bookings</div></div>
+    ${[
+      {i:'AK',c:'av-green',n:'Arjun Kumar',r:'GRIET · CSE · 2025',topic:'Resume review + TCS prep',time:'3:00 PM today'},
+      {i:'SM',c:'av-blue', n:'Sneha Murthy',r:'GRIET · IT · 2025', topic:'Interview strategy',time:'5:30 PM today'},
+    ].map(s=>`
+    <div class="booking-card">
+      <div class="bk-top">
+        <div class="avatar ${s.c}" style="width:42px;height:42px;font-size:14px;font-weight:700">${s.i}</div>
+        <div class="bk-info">
+          <div class="bk-student">${s.n}</div>
+          <div class="bk-college">${s.r}</div>
+        </div>
+      </div>
+      <div class="bk-bottom">
+        <div class="bk-time">⏰ ${s.time}</div>
+        <div class="bk-topic">${s.topic}</div>
+      </div>
+      <div class="bk-actions">
+        <div class="bk-btn bk-accept" onclick="showToast('💬','Starting session with ${s.n}...')">Join Session</div>
+        <div class="bk-btn bk-reschedule" onclick="showToast('📅','Reschedule request sent to ${s.n}')">Reschedule</div>
+      </div>
+    </div>`).join('')}
+
+    <div class="section-head"><div class="sh-title">Quick Stats</div></div>
+    <div class="stats-2x2">
+      <div class="stat-tile"><div class="st-num">96%</div><div class="st-lbl">Acceptance Rate</div></div>
+      <div class="stat-tile"><div class="st-num" style="color:var(--amber)">₹400</div><div class="st-lbl">Avg Session Rate</div></div>
+      <div class="stat-tile"><div class="st-num" style="color:var(--purple)">18</div><div class="st-lbl">Unique Students</div></div>
+      <div class="stat-tile"><div class="st-num" style="color:var(--blue)">3</div><div class="st-lbl">Placed by You</div></div>
+    </div>
+    <div style="height:8px"></div>
+  </div>
+</div>`; }
+
+function mentorBookings() { return `
+<div class="screen" id="m-bookings">
+  <div class="status-bar"><span>9:41</span><div class="sb-right">▂▄▆ 🔋</div></div>
+  <div class="screen-header"><div class="screen-title">Bookings 📅</div></div>
+  <div class="scroll-area">
+    <div class="lb-tabs">
+      <div class="lb-tab active" onclick="this.parentElement.querySelectorAll('.lb-tab').forEach(t=>t.classList.remove('active'));this.classList.add('active')">Pending</div>
+      <div class="lb-tab" onclick="this.parentElement.querySelectorAll('.lb-tab').forEach(t=>t.classList.remove('active'));this.classList.add('active')">Upcoming</div>
+      <div class="lb-tab" onclick="this.parentElement.querySelectorAll('.lb-tab').forEach(t=>t.classList.remove('active'));this.classList.add('active')">Completed</div>
+    </div>
+    ${[
+      {i:'PG',c:'av-teal',n:'Pooja Gupta',r:'MVSR · IT · 2025',topic:'Aptitude + mock interview',time:'Mar 15, 2:00 PM',price:'₹299'},
+      {i:'KN',c:'av-amber',n:'Karthik Nair',r:'CBIT · CSE · 2026',topic:'Career guidance session',time:'Mar 16, 11:00 AM',price:'₹199'},
+      {i:'DS',c:'av-pink',n:'Divya Sharma',r:'GRIET · ECE · 2025',topic:'Resume review',time:'Mar 17, 4:00 PM',price:'₹299'},
+    ].map(b=>`
+    <div class="booking-card">
+      <div class="bk-top">
+        <div class="avatar ${b.c}" style="width:42px;height:42px;font-size:14px;font-weight:700">${b.i}</div>
+        <div class="bk-info">
+          <div class="bk-student">${b.n}</div>
+          <div class="bk-college">${b.r}</div>
+        </div>
+        <div style="font-family:var(--font-head);font-size:15px;font-weight:800;color:var(--green)">${b.price}</div>
+      </div>
+      <div class="bk-bottom">
+        <div class="bk-time">📅 ${b.time}</div>
+        <div class="bk-topic">${b.topic}</div>
+      </div>
+      <div class="bk-actions">
+        <div class="bk-btn bk-accept" onclick="showToast('✅','${b.n} booking confirmed!')">Accept</div>
+        <div class="bk-btn bk-reschedule" onclick="showToast('❌','Booking declined')">Decline</div>
+      </div>
+    </div>`).join('')}
+    <div style="height:8px"></div>
+  </div>
+</div>`; }
+
+function mentorSessions() { return `
+<div class="screen" id="m-sessions">
+  <div class="status-bar"><span>9:41</span><div class="sb-right">▂▄▆ 🔋</div></div>
+  <div class="screen-header"><div class="screen-title">Session History 💬</div></div>
+  <div class="scroll-area">
+    ${[
+      {i:'AK',c:'av-green',n:'Arjun Kumar',date:'Mar 10, 2026',dur:'32 min',topic:'TCS prep strategy',rating:5,feedback:'Very insightful! Helped me crack TCS mock.'},
+      {i:'SM',c:'av-blue',n:'Sneha Murthy',date:'Mar 8, 2026',dur:'28 min',topic:'Resume review',rating:5,feedback:'Great resume tips, got shortlisted by Infosys!'},
+      {i:'RT',c:'av-amber',n:'Ravi Teja',date:'Mar 5, 2026',dur:'35 min',topic:'Career guidance',rating:4,feedback:'Really helpful career path advice.'},
+      {i:'PG',c:'av-teal',n:'Pooja Gupta',date:'Feb 28, 2026',dur:'30 min',topic:'Aptitude weakness',rating:5,feedback:'My aptitude score went from 52 to 74!'},
+    ].map(s=>`
+    <div class="card" style="margin:0 20px 12px">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+        <div class="avatar ${s.c}" style="width:40px;height:40px;font-size:13px;font-weight:700">${s.i}</div>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:700;color:var(--t1)">${s.n}</div>
+          <div style="font-size:11px;color:var(--t3)">${s.date} · ${s.dur}</div>
+        </div>
+        <div style="font-size:13px;color:var(--amber)">${'⭐'.repeat(s.rating)}</div>
+      </div>
+      <div style="font-size:11px;color:var(--t3);margin-bottom:8px">Topic: ${s.topic}</div>
+      <div style="font-size:12px;color:var(--t2);font-style:italic;background:var(--surf2);border-radius:10px;padding:10px">"${s.feedback}"</div>
+    </div>`).join('')}
+    <div style="height:8px"></div>
+  </div>
+</div>`; }
+
+function mentorEarnings() { return `
+<div class="screen" id="m-earnings">
+  <div class="status-bar"><span>9:41</span><div class="sb-right">▂▄▆ 🔋</div></div>
+  <div class="screen-header"><div class="screen-title">Earnings 💰</div></div>
+  <div class="scroll-area">
+    <div class="card" style="margin:0 20px 16px;background:linear-gradient(135deg,#120a1e,#0d0714);border-color:rgba(167,139,250,.25);text-align:center;padding:24px">
+      <div style="font-size:12px;color:var(--t3);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:6px">Total Earned</div>
+      <div style="font-family:var(--font-head);font-size:52px;font-weight:800;color:var(--purple);line-height:1">₹28,400</div>
+      <div style="font-size:13px;color:var(--t3);margin-top:6px">Since joining · 24 sessions</div>
+      <div style="display:flex;gap:10px;justify-content:center;margin-top:16px">
+        <span class="pill pill-green">↑ ₹9,600 this month</span>
+        <span class="pill pill-purple">80% payout rate</span>
+      </div>
+    </div>
+    <div class="stats-2x2">
+      <div class="stat-tile"><div class="st-num" style="color:var(--purple)">₹9,600</div><div class="st-lbl">March 2026</div></div>
+      <div class="stat-tile"><div class="st-num" style="color:var(--amber)">₹400</div><div class="st-lbl">Avg per Session</div></div>
+      <div class="stat-tile"><div class="st-num">₹22,720</div><div class="st-lbl">Paid Out</div></div>
+      <div class="stat-tile"><div class="st-num" style="color:var(--green)">₹5,680</div><div class="st-lbl">Pending</div></div>
+    </div>
+    <div class="section-head"><div class="sh-title">Recent Payouts</div></div>
+    ${[
+      {date:'Mar 1, 2026',amount:'₹6,400',sessions:16,status:'Paid'},
+      {date:'Feb 1, 2026',amount:'₹8,000',sessions:20,status:'Paid'},
+      {date:'Jan 1, 2026',amount:'₹8,320',sessions:20,status:'Paid'},
+    ].map(p=>`
+    <div class="card card-sm" style="margin:0 20px 10px;display:flex;align-items:center;gap:12px">
+      <div style="font-size:22px">💸</div>
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:700;color:var(--t1)">${p.date}</div>
+        <div style="font-size:11px;color:var(--t3)">${p.sessions} sessions</div>
+      </div>
+      <div style="font-family:var(--font-head);font-size:15px;font-weight:700;color:var(--purple)">${p.amount}</div>
+      <span class="pill pill-green" style="font-size:10px">${p.status}</span>
+    </div>`).join('')}
+    <div style="padding:0 20px;margin-top:8px">
+      <div class="btn-primary" onclick="showToast('💸','Withdrawal of ₹5,680 initiated!')">Withdraw ₹5,680</div>
+    </div>
+    <div style="height:16px"></div>
+  </div>
+</div>`; }
+
+function mentorProfile() { return `
+<div class="screen" id="m-profile">
+  <div class="status-bar"><span>9:41</span><div class="sb-right">▂▄▆ 🔋</div></div>
+  <div class="profile-hero" style="background:linear-gradient(160deg,#180a2e,var(--bg))">
+    <div class="ph-avatar av-green">RS</div>
+    <div class="ph-name">Rahul Singh</div>
+    <div class="ph-college">SDE-2 @ Amazon · GRIET 2022 · Hyderabad</div>
+    <div class="ph-chips">
+      <span class="pill pill-purple">⭐ 4.9 Rating</span>
+      <span class="pill pill-green">💼 24 Sessions</span>
+      <span class="pill pill-amber">🏆 Top Mentor</span>
+    </div>
+  </div>
+  <div class="scroll-area" style="padding-top:16px">
+    <div class="card" style="margin:0 20px 14px">
+      <div style="font-size:13px;font-weight:700;color:var(--t1);margin-bottom:10px">Expertise</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px">
+        ${['Data Structures','System Design','TCS NQT Prep','Resume Building','Interview Strategy','Amazon Hiring'].map(e=>`<span class="pill pill-purple" style="font-size:11px">${e}</span>`).join('')}
+      </div>
+    </div>
+    <div class="card" style="margin:0 20px 14px">
+      <div style="font-size:13px;font-weight:700;color:var(--t1);margin-bottom:12px">Availability</div>
+      ${['Mon','Tue','Wed','Thu','Fri'].map((d,i)=>`
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+        <div style="font-size:12px;font-weight:600;color:var(--t2);width:32px">${d}</div>
+        <div style="flex:1">
+          <div style="display:flex;gap:6px">
+            ${['3 PM','4 PM','5 PM','6 PM'].map((t,j)=>`
+            <div onclick="showToast('📅','${t} ${d} slot ${j<2?'removed':'added'}!')" style="padding:6px 10px;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;border:1px solid;${j<2?'background:var(--green-10);border-color:var(--bdr2);color:var(--green)':'background:var(--surf2);border-color:var(--bdrw);color:var(--t3)'}">${t}</div>`).join('')}
+          </div>
+        </div>
+      </div>`).join('')}
+    </div>
+    <div style="padding:0 20px 8px">
+      <div class="btn-primary" onclick="showToast('✅','Profile updated successfully!')">Save Profile Changes</div>
+    </div>
+    <div style="height:8px"></div>
+  </div>
+</div>`; }
+
+</script>
+</body>
+</html>
